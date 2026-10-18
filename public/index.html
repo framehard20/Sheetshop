@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Sheetshop</title>
+  <meta name="description" content="Paste a Google Sheet of product links and get a shop page with your invite code on every link.">
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <!-- Builder: shown when the address has no ?s= -->
+  <main id="builder" class="builder" hidden>
+    <div class="b-card">
+      <div class="b-logo"><img src="/icon.svg" alt="" width="40" height="40"> Sheetshop</div>
+      <h1>Turn any Google Sheet into a shop</h1>
+      <p class="muted">Paste the link of a spreadsheet full of product links. Every link gets rebuilt for your shopping agent with your invite code: Kakobuy, CNFans, Hipobuy, raw Weidian/Taobao/1688 links, all of them.</p>
+
+      <form id="b-form" novalidate>
+        <label class="fld">
+          <span>Google Sheet link</span>
+          <input id="b-sheet" type="url" inputmode="url" autocomplete="off" required
+                 placeholder="https://docs.google.com/spreadsheets/d/…">
+          <small class="muted">The sheet must be shared as <b>Anyone with the link → Viewer</b>.</small>
+        </label>
+
+        <div class="fld">
+          <span>Your agent and invite code</span>
+          <div id="b-agents"></div>
+          <button type="button" id="b-add" class="link-btn">+ Add another agent (buyers can switch)</button>
+        </div>
+
+        <label class="fld">
+          <span>Shop name <small class="muted">(optional, defaults to the sheet's name)</small></span>
+          <input id="b-title" type="text" maxlength="60" autocomplete="off" placeholder="My finds">
+        </label>
+
+        <button class="btn primary" id="b-go" type="submit">Generate shop</button>
+        <p id="b-msg" class="msg" role="status"></p>
+      </form>
+
+      <div id="b-result" class="b-result" hidden>
+        <span class="muted">Your shop link</span>
+        <div class="b-link"><input id="b-url" readonly><button class="btn" id="b-copy" type="button">Copy</button></div>
+        <a id="b-open" class="btn primary" target="_blank" rel="noopener">Open shop ↗</a>
+      </div>
+    </div>
+  </main>
+
+  <!-- Shop -->
+  <div id="shop" hidden>
+    <header class="top">
+      <div class="top-in">
+        <a class="brand" id="title" href="#"></a>
+        <div class="top-tools">
+          <label class="agent-pick" id="agent-pick" hidden>
+            <span class="sr">Shopping agent</span>
+            <select id="agent-select"></select>
+          </label>
+        </div>
+      </div>
+      <div class="search-wrap">
+        <input id="q" type="search" placeholder="Search products…" autocomplete="off" enterkeyhint="search">
+      </div>
+      <nav class="chips" id="tabs" aria-label="Categories"></nav>
+      <nav class="chips sub" id="sections" aria-label="Sections" hidden></nav>
+    </header>
+
+    <a id="signup" class="signup" target="_blank" rel="noopener sponsored" hidden></a>
+
+    <main class="wrap">
+      <p id="status" class="status muted" role="status"></p>
+      <div id="grid" class="grid"></div>
+      <div id="more" class="more" aria-hidden="true"></div>
+    </main>
+
+    <footer class="foot muted">Links go to <span id="foot-agent"></span>. Prices come from the sheet and may have changed.</footer>
+  </div>
+
+  <dialog id="gallery" class="gallery">
+    <form method="dialog"><button class="close" aria-label="Close">✕</button></form>
+    <div id="gallery-imgs"></div>
+  </dialog>
+
+  <script type="module" src="/main.js"></script>
+</body>
+</html>

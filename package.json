@@ -1,0 +1,14 @@
+{
+  "name": "sheetshop",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Paste a Google Sheet of product links, get a shop page with your agent invite code on every link.",
+  "type": "module",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
