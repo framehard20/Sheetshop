@@ -372,26 +372,70 @@ async function shop(token) {
     const a = el("a", { className: "card", href: linkFor(p), target: "_blank", rel: "noopener sponsored nofollow" });
     const ph = picture(p, 500);
     const fav = el("button", { type: "button", className: "mini fav", "aria-label": t(favs.has(p.key) ? "unsave" : "save"), "aria-pressed": String(favs.has(p.key)) });
-    fav.innerHTML = '<svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 017-2.6A4 4 0 0119 10c0 5.6-7 10-7 10z" fill="currentColor"/></svg>';
+    fav.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 017-2.6A4 4 0 0119 10c0 5.6-7 10-7 10z" fill="currentColor"/></svg>';
     fav.onclick = (e) => { e.preventDefault(); e.stopPropagation(); toggleFav(p, fav); };
-    ph.append(el("div", { className: "act l" }, fav));
-    if (p.gal?.length) {
-      const b = el("button", { type: "button", className: "mini", textContent: `📷 ${p.gal.length + 1}`, title: t("photos", { n: p.gal.length + 1 }) });
-      b.onclick = (e) => { e.preventDefault(); e.stopPropagation(); openGallery(p); };
-      ph.append(el("div", { className: "act r" }, b));
-    }
+    if (p.brand) ph.append(el("span", { className: "tag", textContent: p.brand }));
+    ph.append(el("div", { className: "act r" }, fav));
+    if (p.gal?.length) ph.append(el("div", { className: "act b" }, el("span", { className: "mini", textContent: `📷 ${p.gal.length + 1}`, title: t("photos", { n: p.gal.length + 1 }) })));
     a.append(ph, el("div", { className: "body" },
-      p.brand ? el("span", { className: "brand", textContent: p.brand }) : null,
       el("span", { className: "name", textContent: p.name }),
       priceText(p) ? el("span", { className: "price", textContent: priceText(p) }) : null,
     ));
     a.addEventListener("click", (e) => {
       if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; // new-tab clicks go straight through
       e.preventDefault();
-      buy(p);
+      openProduct(p);
     });
     return a;
   }
+
+  // ---- product window (like flayfind's outfit window): photos, price, buy
+  // link and the sign-up offer
+  const pm = $("#pm");
+  let pmProduct = null, pmPhotos = [], pmAt = 0;
+  function showPhoto(i) {
+    if (!pmPhotos.length) { $("#pm-media").replaceChildren(picture(pmProduct, 1000, "")); return; }
+    pmAt = (i + pmPhotos.length) % pmPhotos.length;
+    $("#pm-media").replaceChildren(picture(pmProduct, 1000, pmPhotos[pmAt]));
+    [...$("#pm-thumbs").children].forEach((b, j) => b.setAttribute("aria-current", String(j === pmAt)));
+  }
+  function openProduct(p) {
+    pmProduct = p;
+    pmPhotos = [p.ik, ...(p.gal || [])].filter(Boolean);
+    $("#pm-tag").textContent = t.cat(p.cat);
+    $("#pm-brand").textContent = p.brand || "";
+    $("#pm-name").textContent = p.name;
+    $("#pm-price-lbl").textContent = t("priceLbl");
+    $("#pm-price").textContent = priceText(p);
+    $("#pm-price").parentElement.hidden = !priceText(p);
+    $("#pm-buy").href = linkFor(p);
+    $("#pm-buy-text").textContent = t("pmBuy", { agent: agentName() });
+    const many = pmPhotos.length > 1;
+    $("#pm-prev").hidden = $("#pm-next").hidden = !many;
+    $("#pm-prev").setAttribute("aria-label", t("prev"));
+    $("#pm-next").setAttribute("aria-label", t("next"));
+    $("#pm-thumbs").replaceChildren(...(many ? pmPhotos.map((k, j) => {
+      const b = el("button", { type: "button", "aria-label": `${j + 1} / ${pmPhotos.length}` }, picture(p, 200, k));
+      b.onclick = () => showPhoto(j);
+      return b;
+    }) : []));
+    showPhoto(0);
+    $(".pm-panel").scrollTop = 0;
+    openModal(pm);
+    $("#pm-buy").focus({ preventScroll: true });
+  }
+  $("#pm-prev").onclick = () => showPhoto(pmAt - 1);
+  $("#pm-next").onclick = () => showPhoto(pmAt + 1);
+  pm.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowLeft") showPhoto(pmAt - 1);
+    if (e.key === "ArrowRight") showPhoto(pmAt + 1);
+  });
+  // Buy: the sign-up step comes first, the first time in each page load
+  $("#pm-buy").addEventListener("click", (e) => {
+    if (e.metaKey || e.ctrlKey || e.shiftKey || !pmProduct) return;
+    e.preventDefault();
+    buy(pmProduct);
+  });
 
   function toggleFav(p, btn) {
     if (favs.has(p.key)) favs.delete(p.key); else favs.add(p.key);
@@ -570,16 +614,14 @@ async function shop(token) {
   }
   introDone.then(() => setTimeout(maybeWelcome, 9000));
   $("#wel-cta").addEventListener("click", () => { signedUp("welcome_popup"); $("#welcome").close(); });
-  $("#offer").addEventListener("click", () => { if (offerOn()) signedUp("top_bar"); });
+  $("#offer").addEventListener("click", () => { if (offerOn()) signedUp("under_title"); });
+  $("#topbar").addEventListener("click", () => signedUp("top_bar"));
+  $("#pm-cta").addEventListener("click", () => signedUp("product_window"));
   $("#sticky-offer").addEventListener("click", (e) => {
     if (e.target.closest("#sticky-x")) { e.preventDefault(); session.set("stickyOff", "1"); $("#sticky-offer").hidden = true; return; }
     signedUp("floating_bar");
   });
 
-  function openGallery(p) {
-    $("#gallery-imgs").replaceChildren(...[p.ik, ...p.gal].filter(Boolean).map((k) => picture(p, 1000, k)));
-    openModal($("#gallery"));
-  }
 
   // ---- texts (again whenever the language changes)
   function paintTexts() {
@@ -604,8 +646,17 @@ async function shop(token) {
     const sticky = $("#sticky-offer");
     const trust = $("#trust");
     if (offerOn()) {
-      offer.href = sticky.href = signupUrl();
+      offer.href = sticky.href = $("#topbar").href = $("#pm-cta").href = signupUrl();
       t.into($("#offer-text"), "offerBar", { agent: agentName() });
+      t.into($("#topbar-text"), "offerBar", { agent: agentName() });
+      $("#topbar").hidden = false;
+      $("#pm-reg").hidden = false;
+      $("#pm-reg-line").textContent = t("pmRegLine");
+      $("#pm-reg-text").textContent = t("pmRegText", { agent: agentName() });
+      $("#pm-cta-text").textContent = t("pmCta");
+      $("#pm-fine").textContent = t("pmFine");
+      $("#pm-trust").replaceChildren(...["trust1", "trust2", "trust3"].map((k) => el("li", { textContent: t(k) })));
+      $("#pm-trust").hidden = false;
       $("#sticky-text").textContent = t("offerShort") + " →";
       offer.hidden = false;
       trust.replaceChildren(...["trust1", "trust2", "trust3", "trust4"].map((k) => el("li", { textContent: t(k) })));
@@ -633,6 +684,9 @@ async function shop(token) {
       offer.hidden = !agent.code;
       sticky.hidden = true;
       trust.hidden = true;
+      $("#topbar").hidden = true;
+      $("#pm-reg").hidden = true;
+      $("#pm-trust").hidden = true;
       if (agent.code) { offer.removeAttribute("href"); t.into($("#offer-text"), "codeBar", { agent: agentName(), code: agent.code }); }
     }
   }

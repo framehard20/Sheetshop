@@ -26,6 +26,7 @@ const T = {
     trustLabel: "With your {agent} account",
     trust1: "Quality check on every item", trust2: "All your buys in one parcel", trust3: "After-sales service", trust4: "Worldwide shipping",
     gateKicker: "One step before buying", gateTitle: "Get **$800** off + **40%** off shipping",
+    pmBuy: "Buy on {agent}", pmRegLine: "off + 40% off shipping", pmRegText: "Sign up free on {agent} through our link before you buy.", pmCta: "Sign up and get $800 + 40% off", pmFine: "Free account · our invite code is already filled in", prev: "Previous photo", next: "Next photo", priceLbl: "Price",
     gateS1t: "Open {agent} with our link", gateS1d: "Our invite code is already filled in",
     gateS2t: "Create your free account", gateS2d: "Takes under a minute",
     gateS3t: "Come back and buy this item", gateS3d: "With $800 off and 40% off shipping",
@@ -62,6 +63,7 @@ const T = {
     trustLabel: "Con tu cuenta de {agent}",
     trust1: "Revisión de calidad de cada prenda", trust2: "Todas tus compras en un solo paquete", trust3: "Servicio posventa", trust4: "Envío a todo el mundo",
     gateKicker: "Un paso antes de comprar", gateTitle: "Llévate **800 $** de descuento + **40%** en el envío",
+    pmBuy: "Comprar en {agent}", pmRegLine: "de descuento + 40% en el envío", pmRegText: "Regístrate gratis en {agent} con nuestro enlace antes de comprar.", pmCta: "Regístrate y llévate 800 $ + 40%", pmFine: "Cuenta gratis · nuestro código de invitación ya va puesto", prev: "Foto anterior", next: "Foto siguiente", priceLbl: "Precio",
     gateS1t: "Abre {agent} con nuestro enlace", gateS1d: "Nuestro código de invitación ya va puesto",
     gateS2t: "Crea tu cuenta gratis", gateS2d: "Tardas menos de un minuto",
     gateS3t: "Vuelve y compra este artículo", gateS3d: "Con 800 $ de descuento y 40% en el envío",
@@ -98,6 +100,7 @@ const T = {
     trustLabel: "Avec votre compte {agent}",
     trust1: "Contrôle qualité de chaque article", trust2: "Tous vos achats dans un seul colis", trust3: "Service après-vente", trust4: "Livraison dans le monde entier",
     gateKicker: "Une étape avant d’acheter", gateTitle: "Obtenez **800 $** de réduction + **40 %** sur la livraison",
+    pmBuy: "Acheter sur {agent}", pmRegLine: "de réduction + 40 % sur la livraison", pmRegText: "Inscrivez-vous gratuitement sur {agent} avec notre lien avant d’acheter.", pmCta: "Je m’inscris : 800 $ + 40 %", pmFine: "Compte gratuit · notre code d’invitation est déjà rempli", prev: "Photo précédente", next: "Photo suivante", priceLbl: "Prix",
     gateS1t: "Ouvrez {agent} avec notre lien", gateS1d: "Notre code d’invitation est déjà rempli",
     gateS2t: "Créez votre compte gratuit", gateS2d: "Moins d’une minute",
     gateS3t: "Revenez et achetez cet article", gateS3d: "Avec 800 $ de réduction et 40 % sur la livraison",
@@ -134,6 +137,7 @@ const T = {
     trustLabel: "Mit deinem {agent}-Konto",
     trust1: "Qualitätskontrolle jedes Artikels", trust2: "Alle Käufe in einem Paket", trust3: "Kundendienst nach dem Kauf", trust4: "Versand weltweit",
     gateKicker: "Ein Schritt vor dem Kauf", gateTitle: "Hol dir **800 $** Rabatt + **40 %** auf den Versand",
+    pmBuy: "Bei {agent} kaufen", pmRegLine: "Rabatt + 40 % auf den Versand", pmRegText: "Registriere dich vor dem Kauf kostenlos über unseren Link bei {agent}.", pmCta: "Registrieren: 800 $ + 40 %", pmFine: "Kostenloses Konto · unser Einladungscode ist schon eingetragen", prev: "Vorheriges Foto", next: "Nächstes Foto", priceLbl: "Preis",
     gateS1t: "Öffne {agent} über unseren Link", gateS1d: "Unser Einladungscode ist schon eingetragen",
     gateS2t: "Erstelle dein kostenloses Konto", gateS2d: "Dauert keine Minute",
     gateS3t: "Komm zurück und kauf diesen Artikel", gateS3d: "Mit 800 $ Rabatt und 40 % auf den Versand",
@@ -170,6 +174,7 @@ const T = {
     trustLabel: "Con il tuo account {agent}",
     trust1: "Controllo qualità di ogni articolo", trust2: "Tutti i tuoi acquisti in un unico pacco", trust3: "Assistenza post-vendita", trust4: "Spedizione in tutto il mondo",
     gateKicker: "Un passo prima di comprare", gateTitle: "Ottieni **800 $** di sconto + **40%** sulla spedizione",
+    pmBuy: "Compra su {agent}", pmRegLine: "di sconto + 40% sulla spedizione", pmRegText: "Registrati gratis su {agent} con il nostro link prima di comprare.", pmCta: "Registrati: 800 $ + 40%", pmFine: "Account gratuito · il nostro codice invito è già inserito", prev: "Foto precedente", next: "Foto successiva", priceLbl: "Prezzo",
     gateS1t: "Apri {agent} con il nostro link", gateS1d: "Il nostro codice invito è già inserito",
     gateS2t: "Crea il tuo account gratuito", gateS2d: "Meno di un minuto",
     gateS3t: "Torna e compra questo articolo", gateS3d: "Con 800 $ di sconto e 40% sulla spedizione",
@@ -206,6 +211,7 @@ const T = {
     trustLabel: "Com a tua conta {agent}",
     trust1: "Controlo de qualidade de cada artigo", trust2: "Todas as compras num só pacote", trust3: "Apoio pós-venda", trust4: "Envio para todo o mundo",
     gateKicker: "Um passo antes de comprar", gateTitle: "Ganha **800 $** de desconto + **40%** no envio",
+    pmBuy: "Comprar na {agent}", pmRegLine: "de desconto + 40% no envio", pmRegText: "Regista-te grátis na {agent} com o nosso link antes de comprar.", pmCta: "Regista-te: 800 $ + 40%", pmFine: "Conta grátis · o nosso código de convite já vai preenchido", prev: "Foto anterior", next: "Foto seguinte", priceLbl: "Preço",
     gateS1t: "Abre a {agent} com o nosso link", gateS1d: "O nosso código de convite já vai preenchido",
     gateS2t: "Cria a tua conta grátis", gateS2d: "Demora menos de um minuto",
     gateS3t: "Volta e compra este artigo", gateS3d: "Com 800 $ de desconto e 40% no envio",
@@ -242,6 +248,7 @@ const T = {
     trustLabel: "使用你的 {agent} 账户",
     trust1: "每件商品都有质检", trust2: "所有商品合并为一个包裹", trust3: "售后服务", trust4: "全球配送",
     gateKicker: "购买前的一步", gateTitle: "立减 **800 $** + 运费 **6 折**",
+    pmBuy: "在 {agent} 购买", pmRegLine: "优惠 + 运费 6 折", pmRegText: "购买前通过我们的链接免费注册 {agent}。", pmCta: "注册领取 800 $ + 运费优惠", pmFine: "免费账户 · 邀请码已自动填写", prev: "上一张", next: "下一张", priceLbl: "价格",
     gateS1t: "通过我们的链接打开 {agent}", gateS1d: "邀请码已自动填写",
     gateS2t: "免费注册账户", gateS2d: "不到一分钟",
     gateS3t: "回来购买这件商品", gateS3d: "立减 800 $，运费 6 折",
@@ -261,12 +268,7 @@ const T = {
 };
 
 export function pickLang(saved) {
-  if (saved && T[saved]) return saved;
-  for (const l of navigator.languages || [navigator.language || "en"]) {
-    const code = String(l).slice(0, 2).toLowerCase();
-    if (T[code]) return code;
-  }
-  return "en";
+  return saved && T[saved] ? saved : "en";
 }
 
 export function translator(lang) {
@@ -295,23 +297,8 @@ export const CURRENCIES = [
   "TRY", "AED", "SAR", "INR", "JPY", "KRW", "CNY",
 ];
 
-const REGION_CURRENCY = {
-  US: "USD", GB: "GBP", CA: "CAD", AU: "AUD", MX: "MXN", BR: "BRL", CH: "CHF", PL: "PLN", SE: "SEK", NO: "NOK",
-  DK: "DKK", CZ: "CZK", HU: "HUF", RO: "RON", TR: "TRY", AE: "AED", SA: "SAR", IN: "INR", JP: "JPY", KR: "KRW", CN: "CNY",
-};
-const EURO = "AT BE CY DE EE ES FI FR GR HR IE IT LT LU LV MT NL PT SI SK".split(" ");
-
 export function pickCurrency(saved) {
-  if (saved && CURRENCIES.includes(saved)) return saved;
-  try {
-    const region = new Intl.Locale(navigator.language || "en-US").maximize().region;
-    if (EURO.includes(region)) return "EUR";
-    if (REGION_CURRENCY[region]) return REGION_CURRENCY[region];
-  } catch {}
-  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
-  if (tz === "Europe/London") return "GBP";
-  if (tz.startsWith("Europe/")) return "EUR";
-  return "USD";
+  return saved && CURRENCIES.includes(saved) ? saved : "USD";
 }
 
 // A category's name in every language, so searching "zapatillas" or

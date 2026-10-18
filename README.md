@@ -32,12 +32,14 @@ Nothing is stored anywhere: change a sheet and the shop changes with it
   with daily exchange rates and marked "≈" when converted.
 - Light, dark or automatic appearance.
 - Saved items (♥), photo galleries, and a share button.
-- A language and currency window first, on a visitor's first visit (their
-  browser's language and country are pre-selected; Accept and done).
+- A language and currency window first, on a visitor's first visit (English
+  and US dollars pre-selected; Accept and done).
+- Tapping a product opens its window, like flayfind's: photos, price, a
+  "Buy on Uidbuy" button and the $800 + 40% sign-up box.
 - With Uidbuy and a code: the "$800 + 40% off shipping" offer in the header and
   in a floating bar, a welcome pop-up (9 seconds after the language window, at
   most every 3 days, never again after someone clicks to sign up), and a
-  sign-up step with the coupon on the first product tapped in each page load
+  sign-up step with the coupon on the first "Buy" pressed in each page load
   (a reload shows it again), which then takes them to the product.
 - While a pop-up is open the page behind it doesn't move.
 
@@ -81,8 +83,10 @@ own event, and every event carries the shop's name and agent:
 
 | Event | Where |
 | --- | --- |
-| `signup_top_bar` | the "$800 + 40% off shipping" bar under the title |
+| `signup_top_bar` | the black bar at the very top of the page |
+| `signup_under_title` | the "$800 + 40% off shipping" pill under the title |
 | `signup_floating_bar` | the floating bar at the bottom |
+| `signup_product_window` | the red button in a product's window |
 | `signup_welcome_popup` | the $800 welcome pop-up |
 | `signup_before_buy` | the sign-up step shown before the first product |
 | `signup_before_buy_again` | "didn't open? open it again" in that step |
