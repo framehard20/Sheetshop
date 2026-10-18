@@ -318,3 +318,10 @@ input[type="text"], input[type="url"], input[type="password"], input[type="searc
   .bar { position: relative; top: auto; }
   .nav.scrolled .nav-search { display: inline-flex; }
 }
+
+/* The pop-up scrolls on its own; scrolling never passes to the page behind. */
+.modal { overscroll-behavior: contain; }
+.intro { padding-top: 32px; }
+.intro-ico { display: grid; place-items: center; width: 60px; height: 60px; margin: 0 auto 10px; border-radius: 18px; background: var(--chip); color: var(--accent); }
+.intro .set-row:last-of-type { margin-bottom: 18px; border-bottom: 1px solid var(--hairline); }
+.intro p { margin: 0 0 16px; }

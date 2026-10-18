@@ -32,10 +32,14 @@ Nothing is stored anywhere: change a sheet and the shop changes with it
   with daily exchange rates and marked "≈" when converted.
 - Light, dark or automatic appearance.
 - Saved items (♥), photo galleries, and a share button.
+- A language and currency window first, on a visitor's first visit (their
+  browser's language and country are pre-selected; Accept and done).
 - With Uidbuy and a code: the "$800 + 40% off shipping" offer in the header and
-  in a floating bar, a welcome pop-up (once every 3 days, never again after
-  someone clicks to sign up), and a sign-up step the first time someone taps
-  a product in a visit, which then takes them to the product.
+  in a floating bar, a welcome pop-up (9 seconds after the language window, at
+  most every 3 days, never again after someone clicks to sign up), and a
+  sign-up step with the coupon on the first product tapped in each page load
+  (a reload shows it again), which then takes them to the product.
+- While a pop-up is open the page behind it doesn't move.
 
 ## Only the owner can make shops
 

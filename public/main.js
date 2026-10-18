@@ -30,9 +30,35 @@ async function api(path, params, post) {
   return body;
 }
 
-// Dialogs close with their ✕ / "later" buttons and by tapping outside.
+// Dialogs close with their ✕ / "later" buttons and by tapping outside
+// (except the language window, which needs an answer).
 for (const d of document.querySelectorAll("dialog")) {
-  d.addEventListener("click", (e) => { if (e.target === d || e.target.closest("[data-close]")) d.close(); });
+  d.addEventListener("click", (e) => {
+    if (e.target.closest("[data-close]") || (e.target === d && !d.hasAttribute("data-must-answer"))) d.close();
+  });
+}
+
+// While a pop-up is open the page behind it stays still: only the pop-up
+// moves. (A fixed body is what stops iPhones from scrolling behind it.)
+let locks = 0, lockedAt = 0;
+function lockPage() {
+  if (locks++) return;
+  lockedAt = scrollY;
+  Object.assign(document.body.style, { position: "fixed", top: `-${lockedAt}px`, left: "0", right: "0", width: "100%" });
+  document.documentElement.style.overflow = "hidden";
+}
+function unlockPage() {
+  if (--locks > 0) return;
+  locks = 0;
+  document.body.style.cssText = "";
+  document.documentElement.style.overflow = "";
+  window.scrollTo({ top: lockedAt, behavior: "instant" });
+}
+function openModal(d) {
+  if (d.open) return;
+  d.showModal();
+  lockPage();
+  d.addEventListener("close", unlockPage, { once: true });
 }
 
 // ---- appearance: light / dark / follow the device
@@ -124,6 +150,43 @@ async function shop(token) {
   let locale = localeFor(lang);
   let currency = pickCurrency(store.get("currency"));
   document.documentElement.lang = lang;
+
+  // ---- first thing on arrival: language and currency (asked once per
+  // device; changeable any time with the 🌐 button)
+  let onLocale = () => {}; // replaced once the shop is drawn
+  const introDone = new Promise((resolve) => {
+    if (store.get("localeOk")) return resolve();
+    const d = $("#intro"), ls = $("#intro-lang"), cs = $("#intro-cur");
+    ls.replaceChildren(...Object.entries(LANGS).map(([v, n]) => el("option", { value: v, textContent: n })));
+    ls.value = lang;
+    const paint = () => {
+      const tt = translator(ls.value);
+      $("#intro-title").textContent = tt("introTitle");
+      $("#intro-text").textContent = tt("introText");
+      $("#intro-lang-l").textContent = tt("language");
+      $("#intro-cur-l").textContent = tt("currency");
+      $("#intro-ok").textContent = tt("accept");
+      let name = (c) => c;
+      try { const dn = new Intl.DisplayNames([localeFor(ls.value)], { type: "currency" }); name = (c) => `${c} · ${dn.of(c)}`; } catch {}
+      const keep = cs.value || currency;
+      cs.replaceChildren(...CURRENCIES.map((c) => el("option", { value: c, textContent: name(c) })));
+      cs.value = keep;
+    };
+    paint();
+    ls.onchange = paint;
+    d.addEventListener("cancel", (e) => e.preventDefault()); // Esc doesn't skip it
+    $("#intro-ok").onclick = () => {
+      store.set("localeOk", 1);
+      const changed = ls.value !== lang || cs.value !== currency;
+      lang = ls.value; currency = cs.value;
+      store.set("lang", lang); store.set("currency", currency);
+      t = translator(lang); locale = localeFor(lang);
+      d.close();
+      if (changed) onLocale();
+      resolve();
+    };
+    openModal(d);
+  });
 
   const grid = $("#grid");
   const status = (s) => ($("#status").textContent = s);
@@ -462,9 +525,11 @@ async function shop(token) {
 
   // ---- buying: sign-up step first (once per visit), then the product
   const gate = $("#gate");
+  let gateShown = false;
   let gateProduct = null;
   function buy(p) {
-    if (offerOn() && !session.get("gated") && !store.get("joined")) return openGate(p);
+    // once per page load, on the first product tapped; a reload starts over
+    if (offerOn() && !gateShown) { gateShown = true; return openGate(p); }
     window.open(linkFor(p), "_blank", "noopener");
   }
   function openGate(p) {
@@ -473,7 +538,7 @@ async function shop(token) {
     $("#gate-step2").hidden = true;
     $("#gate-product").replaceChildren(picture(p, 200),
       el("div", {}, el("span", { textContent: p.name }), priceText(p) ? el("small", { textContent: priceText(p) }) : null));
-    gate.showModal();
+    openModal(gate);
     $("#gate-cta").focus();
   }
   // Only clicks on sign-up links are counted, each place under its own name.
@@ -483,13 +548,11 @@ async function shop(token) {
   };
   $("#gate-cta").addEventListener("click", () => {
     signedUp("before_buy");
-    session.set("gated", "1");
     $("#gate-step1").hidden = true;
     $("#gate-step2").hidden = false;
     $("#ready-cta").focus();
   });
   const goToProduct = () => {
-    session.set("gated", "1");
     gate.close();
     if (gateProduct) window.open(linkFor(gateProduct), "_blank", "noopener");
   };
@@ -503,11 +566,9 @@ async function shop(token) {
     const last = store.get("welcomeAt") || 0;
     if (Date.now() - last < 3 * 86400e3) return;
     store.set("welcomeAt", Date.now());
-    $("#welcome").showModal();
+    openModal($("#welcome"));
   }
-  const welcomeTimer = setTimeout(maybeWelcome, 9000);
-  const onScrollOnce = () => { if (scrollY > 1400) { removeEventListener("scroll", onScrollOnce); clearTimeout(welcomeTimer); maybeWelcome(); } };
-  addEventListener("scroll", onScrollOnce, { passive: true });
+  introDone.then(() => setTimeout(maybeWelcome, 9000));
   $("#wel-cta").addEventListener("click", () => { signedUp("welcome_popup"); $("#welcome").close(); });
   $("#offer").addEventListener("click", () => { if (offerOn()) signedUp("top_bar"); });
   $("#sticky-offer").addEventListener("click", (e) => {
@@ -517,7 +578,7 @@ async function shop(token) {
 
   function openGallery(p) {
     $("#gallery-imgs").replaceChildren(...[p.ik, ...p.gal].filter(Boolean).map((k) => picture(p, 1000, k)));
-    $("#gallery").showModal();
+    openModal($("#gallery"));
   }
 
   // ---- texts (again whenever the language changes)
@@ -636,11 +697,12 @@ async function shop(token) {
     const mode = store.get("theme") || "auto";
     for (const b of $("#theme-seg").children) b.setAttribute("aria-checked", String(b.dataset.theme === mode));
   };
-  $("#btn-settings").onclick = () => { langSel.value = lang; curSel.value = currency; paintSeg(); $("#settings").showModal(); };
+  $("#btn-settings").onclick = () => { langSel.value = lang; curSel.value = currency; paintSeg(); openModal($("#settings")); };
+  onLocale = () => { paintTexts(); paintChips(); render(true); };
   langSel.onchange = () => {
-    lang = langSel.value; store.set("lang", lang);
+    lang = langSel.value; store.set("lang", lang); store.set("localeOk", 1);
     t = translator(lang); locale = localeFor(lang);
-    paintTexts(); paintChips(); render(true);
+    onLocale();
   };
   curSel.onchange = () => { currency = curSel.value; store.set("currency", currency); paintTexts(); render(true); };
   $("#theme-seg").onclick = (e) => { const b = e.target.closest("button"); if (b) { applyTheme(b.dataset.theme); paintSeg(); } };
