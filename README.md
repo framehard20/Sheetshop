@@ -32,8 +32,8 @@ Nothing is stored anywhere: change a sheet and the shop changes with it
   with daily exchange rates and marked "≈" when converted.
 - Light, dark or automatic appearance.
 - Saved items (♥), photo galleries, and a share button.
-- A language and currency window first, on a visitor's first visit (English
-  and US dollars pre-selected; Accept and done).
+- A language and currency window first, every time the page opens (English
+  and US dollars pre-selected, or the visitor's last choice; Accept and done).
 - Tapping a product opens its window, like flayfind's: photos, price, a
   "Buy on Uidbuy" button and the $800 + 40% sign-up box.
 - With Uidbuy and a code: the "$800 + 40% off shipping" offer in the header and

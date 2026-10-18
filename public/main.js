@@ -151,11 +151,10 @@ async function shop(token) {
   let currency = pickCurrency(store.get("currency"));
   document.documentElement.lang = lang;
 
-  // ---- first thing on arrival: language and currency (asked once per
-  // device; changeable any time with the 🌐 button)
+  // ---- first thing every time the page opens: language and currency, with
+  // the visitor's last choice (or English and US dollars) already selected
   let onLocale = () => {}; // replaced once the shop is drawn
   const introDone = new Promise((resolve) => {
-    if (store.get("localeOk")) return resolve();
     const d = $("#intro"), ls = $("#intro-lang"), cs = $("#intro-cur");
     ls.replaceChildren(...Object.entries(LANGS).map(([v, n]) => el("option", { value: v, textContent: n })));
     ls.value = lang;
@@ -176,7 +175,6 @@ async function shop(token) {
     ls.onchange = paint;
     d.addEventListener("cancel", (e) => e.preventDefault()); // Esc doesn't skip it
     $("#intro-ok").onclick = () => {
-      store.set("localeOk", 1);
       const changed = ls.value !== lang || cs.value !== currency;
       lang = ls.value; currency = cs.value;
       store.set("lang", lang); store.set("currency", currency);
@@ -754,7 +752,7 @@ async function shop(token) {
   $("#btn-settings").onclick = () => { langSel.value = lang; curSel.value = currency; paintSeg(); openModal($("#settings")); };
   onLocale = () => { paintTexts(); paintChips(); render(true); };
   langSel.onchange = () => {
-    lang = langSel.value; store.set("lang", lang); store.set("localeOk", 1);
+    lang = langSel.value; store.set("lang", lang);
     t = translator(lang); locale = localeFor(lang);
     onLocale();
   };
