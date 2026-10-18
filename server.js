@@ -5,7 +5,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { gzipSync } from "node:zlib";
 import { fileURLToPath } from "node:url";
-import { sign, sheet, tab, img } from "./lib/api.js";
+import { sign, sheet, tab, img, rates } from "./lib/api.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(here, "public");
@@ -18,7 +18,7 @@ try {
   }
 } catch {}
 const port = Number(process.env.PORT) || 3210;
-const routes = { "/api/sign": sign, "/api/sheet": sheet, "/api/tab": tab, "/api/img": img };
+const routes = { "/api/sign": sign, "/api/sheet": sheet, "/api/tab": tab, "/api/img": img, "/api/rates": rates };
 const types = {
   ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8",
   ".css": "text/css; charset=utf-8", ".svg": "image/svg+xml", ".png": "image/png",
