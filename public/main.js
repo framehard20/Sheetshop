@@ -202,11 +202,11 @@ async function shop(token) {
   }
 
   // ---- reading the sheets
-  function ingest(rows, task, page) {
+  function ingest(rows, task, page, into = byKey) {
     rows.forEach((raw, r) => {
       const key = `${raw.platform}:${raw.id}`;
       const order = task.order * 1e6 + page * 1e3 + r;
-      const old = byKey.get(key);
+      const old = into.get(key);
       if (old && old.order <= order) {
         if (!old.ik && raw.ik) Object.assign(old, { img: raw.img, ik: raw.ik, gal: raw.gal, sheet: task.sheet, gid: task.gid });
         return;
@@ -215,31 +215,66 @@ async function shop(token) {
       p.cat = categorize(p, task.name);
       p.brand = brandOf(p.name);
       p.ix = indexText(p, catNames(p.cat));
-      byKey.set(key, p);
+      into.set(key, p);
     });
   }
 
-  const tasks = [];
-  info.sheets.forEach((s, si) => s.tabs.forEach((tab, ti) =>
-    tasks.push({ sh: si, gid: tab.gid, name: tab.name, sheet: { id: s.id, h: s.h }, order: si * 1000 + ti })));
+  // One task per tab. "v" is the sheet's last-edit date: a new edit asks for
+  // a new address, so no cache can hand back the old list.
+  let sheetsNow = info.sheets;
+  const tasksFor = (list) => list.flatMap((s, si) => s.tabs.map((tab, ti) =>
+    ({ sh: si, gid: tab.gid, name: tab.name, v: s.modified || "", sheet: { id: s.id, h: s.h }, order: si * 1000 + ti })));
+  const tasks = tasksFor(sheetsNow);
   loadingLeft = tasks.length;
   let failures = 0, lastError = null;
-  async function loadTask(task) {
+  async function loadInto(into, task, live) {
     let page = 0, pages = 1;
-    try {
-      while (page < pages) {
-        const r = await api("tab", { c: token, sh: task.sh, gid: task.gid, page });
-        ingest(r.items, task, page);
-        pages = r.pages;
-        page++;
-        soon();
-      }
-    } catch (e) { failures++; lastError = e; }
+    while (page < pages) {
+      const r = await api("tab", { c: token, sh: task.sh, gid: task.gid, page, v: task.v });
+      ingest(r.items, task, page, into);
+      pages = r.pages;
+      page++;
+      if (live) soon();
+    }
+  }
+  async function loadTask(task) {
+    try { await loadInto(byKey, task, true); } catch (e) { failures++; lastError = e; }
     loadingLeft--;
     soon();
   }
   const queue = [...tasks];
   const worker = async () => { while (queue.length) await loadTask(queue.shift()); };
+
+  // ---- keeping up with edits: every 2 minutes (and when the page comes back
+  // into view) ask whether a sheet changed; if so read everything again in the
+  // background and swap it in without touching what's on screen.
+  const lastEdit = () => sheetsNow.map((s) => s.modified).filter(Boolean).sort().pop() || null;
+  let checking = false, checkedAt = Date.now();
+  async function checkForEdits() {
+    if (checking || loadingLeft > 0 || !sheetsNow.some((s) => s.modified)) return;
+    checking = true;
+    checkedAt = Date.now();
+    try {
+      const r = await api("sheet", { c: token });
+      if (r.sheets.some((s, i) => s.modified && s.modified !== sheetsNow[i]?.modified)) {
+        const fresh = new Map();
+        const q = tasksFor(r.sheets);
+        await Promise.all(Array.from({ length: Math.min(4, q.length) }, async () => {
+          while (q.length) { const task = q.shift(); try { await loadInto(fresh, task, false); } catch {} }
+        }));
+        if (fresh.size) {
+          sheetsNow = r.sheets;
+          byKey.clear();
+          for (const [k, v] of fresh) byKey.set(k, v);
+          refresh();
+          toast(t("refreshed"), 4000);
+        }
+      }
+    } catch {}
+    checking = false;
+  }
+  setInterval(() => { if (!document.hidden) checkForEdits(); }, 120000);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden && Date.now() - checkedAt > 60000) checkForEdits(); });
 
   // ---- filtering & sorting
   function base(ofCat = cat) {
@@ -364,7 +399,10 @@ async function shop(token) {
     const n = list.length;
     const more = loadingLeft > 0 ? ` · ${t("stillLoading")}…` : "";
     status(n ? t(n === 1 ? "product" : "products", { n: n.toLocaleString(locale) }) + more : loadingLeft ? t("loading") : "");
-    $("#subtitle").textContent = t("fromSheets", { n: items.length.toLocaleString(locale) });
+    const edited = lastEdit();
+    $("#subtitle").textContent = edited
+      ? t("updatedAt", { n: items.length.toLocaleString(locale), date: new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(edited)) })
+      : t("fromSheets", { n: items.length.toLocaleString(locale) });
     $("#list-title").textContent = query ? `“${query}”` : cat === "all" ? t("allProducts") : cat === "saved" ? t("saved") : t.cat(cat);
   }
 
@@ -579,12 +617,12 @@ async function shop(token) {
       else { await navigator.clipboard.writeText(url); toast(t("copied")); }
     } catch {}
   };
-  function toast(s) {
+  function toast(s, ms = 1800) {
     const n = $("#toast");
     n.textContent = s;
     n.hidden = false;
     clearTimeout(toast.t);
-    toast.t = setTimeout(() => (n.hidden = true), 1800);
+    toast.t = setTimeout(() => (n.hidden = true), ms);
   }
 
   // settings: language, currency, appearance

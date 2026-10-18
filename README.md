@@ -58,6 +58,17 @@ npx vercel env add SHEETSHOP_PASSWORD production
 (or in the Vercel dashboard: Project → Settings → Environment Variables), then
 deploy again.
 
+## Last-edit date and automatic updates
+
+With a Google API key in the Vercel setting `SHEETSHOP_GOOGLE_KEY` (Google
+Cloud → APIs & Services → enable **Google Drive API** → Credentials → API key),
+the shop shows when its sheets were last edited ("3,906 products · updated
+18 Oct 2026, 21:45") and checks every 2 minutes, and whenever the page comes
+back into view, whether a sheet changed. If one did, it reads everything
+again in the background, swaps it in without moving the page, and says "The
+list has just been updated". Without a key there's no date, and a shop
+catches up with edits within about 10 minutes, the next time it loads.
+
 ## Counting sign-ups (Umami)
 
 Only clicks on the sign-up links are counted, never product clicks, with
