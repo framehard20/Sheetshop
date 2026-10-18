@@ -1,6 +1,7 @@
 import { AGENTS, agentById, buildLink } from "./agents.js";
 import { CATEGORY_ORDER, categorize, brandOf, indexText, makeQuery } from "./catalog.js";
 import { LANGS, CURRENCIES, translator, pickLang, pickCurrency, catNames, localeFor } from "./i18n.js";
+import { startTracking, track } from "./track.js";
 
 const $ = (s) => document.querySelector(s);
 const el = (tag, props = {}, ...kids) => {
@@ -437,9 +438,14 @@ async function shop(token) {
     gate.showModal();
     $("#gate-cta").focus();
   }
-  $("#gate-cta").addEventListener("click", () => {
-    session.set("gated", "1");
+  // Only clicks on sign-up links are counted, each place under its own name.
+  const signedUp = (where) => {
     store.set("joined", Date.now());
+    track("signup_" + where, { shop: info.title, agent: agent.id });
+  };
+  $("#gate-cta").addEventListener("click", () => {
+    signedUp("before_buy");
+    session.set("gated", "1");
     $("#gate-step1").hidden = true;
     $("#gate-step2").hidden = false;
     $("#ready-cta").focus();
@@ -450,6 +456,7 @@ async function shop(token) {
     if (gateProduct) window.open(linkFor(gateProduct), "_blank", "noopener");
   };
   $("#gate-skip").addEventListener("click", goToProduct);
+  $("#ready-again").addEventListener("click", () => signedUp("before_buy_again"));
   $("#ready-cta").addEventListener("click", goToProduct);
 
   // ---- welcome gift: a few seconds in, at most every 3 days, never for people who signed up
@@ -463,11 +470,11 @@ async function shop(token) {
   const welcomeTimer = setTimeout(maybeWelcome, 9000);
   const onScrollOnce = () => { if (scrollY > 1400) { removeEventListener("scroll", onScrollOnce); clearTimeout(welcomeTimer); maybeWelcome(); } };
   addEventListener("scroll", onScrollOnce, { passive: true });
-  $("#wel-cta").addEventListener("click", () => { store.set("joined", Date.now()); $("#welcome").close(); });
-  $("#offer").addEventListener("click", () => store.set("joined", Date.now()));
+  $("#wel-cta").addEventListener("click", () => { signedUp("welcome_popup"); $("#welcome").close(); });
+  $("#offer").addEventListener("click", () => { if (offerOn()) signedUp("top_bar"); });
   $("#sticky-offer").addEventListener("click", (e) => {
     if (e.target.closest("#sticky-x")) { e.preventDefault(); session.set("stickyOff", "1"); $("#sticky-offer").hidden = true; return; }
-    store.set("joined", Date.now());
+    signedUp("floating_bar");
   });
 
   function openGallery(p) {
@@ -492,7 +499,7 @@ async function shop(token) {
     $("#btn-share").setAttribute("aria-label", t("share"));
     $("#btn-search").setAttribute("aria-label", t("search"));
     $("#btn-settings").setAttribute("aria-label", t("settings"));
-    $("#foot-text").textContent = t("footer", { agent: agentName() });
+    $("#foot-text").textContent = t("footer", { agent: agentName() }) + (info.umami ? " " + t("privacy") : "");
 
     const offer = $("#offer");
     const sticky = $("#sticky-offer");
@@ -530,6 +537,8 @@ async function shop(token) {
       if (agent.code) { offer.removeAttribute("href"); t.into($("#offer-text"), "codeBar", { agent: agentName(), code: agent.code }); }
     }
   }
+
+  startTracking(info.umami);
 
   // ---- header: logo, title, tools
   const title = info.title;

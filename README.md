@@ -58,6 +58,24 @@ npx vercel env add SHEETSHOP_PASSWORD production
 (or in the Vercel dashboard: Project → Settings → Environment Variables), then
 deploy again.
 
+## Counting sign-ups (Umami)
+
+Only clicks on the sign-up links are counted, never product clicks, with
+Umami (no cookies, nothing that identifies a visitor). Each place has its
+own event, and every event carries the shop's name and agent:
+
+| Event | Where |
+| --- | --- |
+| `signup_top_bar` | the "$800 + 40% off shipping" bar under the title |
+| `signup_floating_bar` | the floating bar at the bottom |
+| `signup_welcome_popup` | the $800 welcome pop-up |
+| `signup_before_buy` | the sign-up step shown before the first product |
+| `signup_before_buy_again` | "didn't open? open it again" in that step |
+
+It is off until the Vercel setting `SHEETSHOP_UMAMI_ID` holds the Website ID
+of a Sheetshop website in Umami (cloud.umami.is → Settings → Websites), then a
+new deploy. It never runs on localhost.
+
 ## How it reads the sheets
 
 It loads Google's HTML view of each tab (`/htmlview`), which, unlike CSV
@@ -79,6 +97,7 @@ link has died. Answers are cached for a week by Vercel.
   builds the link for the chosen agent with the code
 - `public/catalog.js` categories, brands and search
 - `public/i18n.js` texts in seven languages, currencies
+- `public/track.js` counting sign-up clicks with Umami
 - `public/main.js` the builder page and the shop page
 
 ### Known limits
