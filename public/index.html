@@ -35,6 +35,12 @@
           <input id="b-title" type="text" maxlength="60" autocomplete="off" placeholder="My finds">
         </label>
 
+        <label class="fld">
+          <span>Owner password</span>
+          <input id="b-pass" type="password" autocomplete="current-password" required>
+          <small class="muted">Only the owner of this site can make shops. Shop links are signed, so nobody can change the code inside them.</small>
+        </label>
+
         <button class="btn primary" id="b-go" type="submit">Generate shop</button>
         <p id="b-msg" class="msg" role="status"></p>
       </form>

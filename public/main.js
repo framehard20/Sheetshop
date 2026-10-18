@@ -10,15 +10,18 @@ const store = {
   get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } },
   set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
 };
-async function api(path, params) {
-  const res = await fetch(`/api/${path}?${new URLSearchParams(params)}`);
+async function api(path, params, post) {
+  const res = post
+    ? await fetch(`/api/${path}`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(post) })
+    : await fetch(`/api/${path}?${new URLSearchParams(params)}`);
   const body = await res.json().catch(() => ({ error: "The server sent a broken answer." }));
   if (!res.ok) throw new Error(body.error || `Error ${res.status}`);
   return body;
 }
 
 const qs = new URLSearchParams(location.search);
-if (qs.get("s")) shop(); else builder();
+// Shop links carry ?c=<signed settings>; older ?s= links are no longer accepted.
+if (qs.has("c") || qs.has("s")) shop(qs.get("c") || ""); else builder();
 
 // ---------------------------------------------------------------- builder
 
@@ -55,13 +58,9 @@ function builder() {
     $("#b-go").disabled = true;
     $("#b-result").hidden = true;
     try {
-      const info = await api("sheet", { sheet });
-      const m = sheet.match(/\/d\/(?:e\/)?([A-Za-z0-9_-]{20,})/);
-      const p = new URLSearchParams({ s: m ? m[1] : sheet });
-      for (const a of agents) p.append("a", a.code ? `${a.id}:${a.code}` : a.id);
-      if (title) p.set("t", title);
-      const url = `${location.origin}/?${p}`;
-      msg.textContent = `Found “${info.title}” with ${info.tabs.length} tab${info.tabs.length === 1 ? "" : "s"}.`;
+      const info = await api("sign", null, { password: $("#b-pass").value, sheet, agents, title });
+      const url = `${location.origin}/?c=${info.token}`;
+      msg.textContent = `Found “${info.title}” with ${info.tabs} tab${info.tabs === 1 ? "" : "s"}.`;
       $("#b-url").value = url;
       $("#b-open").href = url;
       $("#b-result").hidden = false;
@@ -81,12 +80,24 @@ function builder() {
 
 // ---------------------------------------------------------------- shop
 
-function shop() {
+async function shop(token) {
   $("#shop").hidden = false;
-  const sheet = qs.get("s");
-  const agents = qs.getAll("a")
-    .map((v) => { const i = v.indexOf(":"); return i < 0 ? { id: v, code: "" } : { id: v.slice(0, i), code: v.slice(i + 1) }; })
-    .filter((a) => agentById(a.id));
+  $("#grid").replaceChildren(...Array.from({ length: 10 }, () => el("div", { className: "skel" })));
+  $("#status").textContent = "Reading the sheet…";
+  let info;
+  try {
+    // The server checks the link's signature and answers with the agents and
+    // codes the owner signed, so the address can't be edited to swap them.
+    info = await api("sheet", { c: token });
+  } catch (err) {
+    $("#status").textContent = "";
+    $(".search-wrap").hidden = true;
+    $(".foot").hidden = true;
+    $("#grid").replaceChildren(el("div", { className: "empty-state", textContent: err.message }));
+    return;
+  }
+  const sheet = info.sheet;
+  const agents = info.agents.map(([id, code]) => ({ id, code })).filter((a) => agentById(a.id));
   if (!agents.length) agents.push({ id: "original", code: "" });
 
   const pickKey = `sheetshop:agent:${sheet}`;
@@ -133,7 +144,7 @@ function shop() {
     t.chain = t.chain.catch(() => {}).then(async () => {
       if (t.done) return t;
       try {
-        const r = await api("tab", { sheet, gid, page: t.loaded });
+        const r = await api("tab", { c: token, gid, page: t.loaded });
         t.items.push(...r.items);
         t.total = r.total;
         t.pages = r.pages;
@@ -283,10 +294,8 @@ function shop() {
   $("#gallery").addEventListener("click", (e) => { if (e.target.id === "gallery") e.target.close(); });
 
   // ---- start
-  skeleton();
-  status("Reading the sheet…");
-  api("sheet", { sheet }).then(async (info) => {
-    const title = qs.get("t") || info.title;
+  (async () => {
+    const title = info.title;
     document.title = title;
     $("#title").textContent = title;
     $("#title").href = location.pathname + location.search;
@@ -323,5 +332,5 @@ function shop() {
       const failed = [...tabs.values()].find((t) => t.failed);
       showError(failed ? failed.failed : new Error("No product links found in this sheet."));
     }
-  }).catch(showError);
+  })().catch(showError);
 }

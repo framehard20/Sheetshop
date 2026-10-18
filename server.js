@@ -5,11 +5,20 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { gzipSync } from "node:zlib";
 import { fileURLToPath } from "node:url";
-import { sheet, tab, img } from "./lib/api.js";
+import { sign, sheet, tab, img } from "./lib/api.js";
 
-const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "public");
+const here = path.dirname(fileURLToPath(import.meta.url));
+const root = path.join(here, "public");
+
+// Settings such as SHEETSHOP_PASSWORD can sit in a .env file next to this one.
+try {
+  for (const line of (await fs.readFile(path.join(here, ".env"), "utf8")).split(/\r?\n/)) {
+    const m = line.match(/^\s*([A-Z_][A-Z0-9_]*)\s*=\s*(.*?)\s*$/);
+    if (m && !(m[1] in process.env)) process.env[m[1]] = m[2].replace(/^(["'])(.*)\1$/, "$2");
+  }
+} catch {}
 const port = Number(process.env.PORT) || 3210;
-const routes = { "/api/sheet": sheet, "/api/tab": tab, "/api/img": img };
+const routes = { "/api/sign": sign, "/api/sheet": sheet, "/api/tab": tab, "/api/img": img };
 const types = {
   ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8",
   ".css": "text/css; charset=utf-8", ".svg": "image/svg+xml", ".png": "image/png",
@@ -20,7 +29,13 @@ http.createServer(async (req, res) => {
   const url = new URL(req.url, "http://localhost");
   const route = routes[url.pathname];
   if (route) {
-    const { status, headers, body } = await route(Object.fromEntries(url.searchParams));
+    let input = {};
+    if (req.method === "POST") {
+      let raw = "";
+      for await (const chunk of req) { raw += chunk; if (raw.length > 1e5) break; }
+      try { input = JSON.parse(raw); } catch {}
+    }
+    const { status, headers, body } = await route({ method: req.method, query: Object.fromEntries(url.searchParams), body: input });
     if (Buffer.isBuffer(body)) return res.writeHead(status, headers).end(body);
     const json = Buffer.from(JSON.stringify(body));
     const gz = /gzip/.test(req.headers["accept-encoding"] || "");
