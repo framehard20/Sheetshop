@@ -27,18 +27,51 @@
       <div class="b-logo"><img src="/icon.svg" alt="" width="36" height="36"> Admin</div>
       <h1>Log in</h1>
       <form id="login-form">
-        <label class="fld">
+        <label class="fld" id="login-pass-row">
           <span>Owner password</span>
           <input id="login-pass" type="password" autocomplete="current-password" required>
+        </label>
+        <label class="fld" id="login-code-row" hidden>
+          <span>6-digit code from your authenticator app</span>
+          <input id="login-code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="9" placeholder="123456" class="code-input">
+          <small class="muted">Lost your phone? Type one of your backup codes instead (like <b>4k7q-9z2m</b>).</small>
         </label>
         <button class="btn primary big" id="login-go" type="submit">Log in</button>
         <p id="login-msg" class="msg" role="status"></p>
       </form>
     </div>
 
+    <div class="b-card" id="setup-card" hidden>
+      <div class="b-logo"><img src="/icon.svg" alt="" width="36" height="36"> Admin</div>
+      <h1>Turn on two-factor login</h1>
+      <p class="muted">From now on, logging in needs your password <b>and</b> a 6-digit code from your phone, so the password alone is never enough.</p>
+      <div id="setup-step1">
+        <ol class="setup-steps">
+          <li><b>Install an authenticator app</b><small>Authy, Google Authenticator or Microsoft Authenticator (free).</small></li>
+          <li><b>Add an account and scan this QR code</b><small>In Authy: + → Scan QR code.</small></li>
+        </ol>
+        <div class="qr" id="qr"></div>
+        <details class="manual"><summary>Can't scan? Type the key instead</summary><code id="setup-secret"></code></details>
+        <ol class="setup-steps" start="3">
+          <li><b>Type the 6-digit code the app shows</b></li>
+        </ol>
+        <form id="setup-form">
+          <input id="setup-code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="123456" class="code-input" required>
+          <button class="btn primary big" id="setup-go" type="submit">Turn on</button>
+          <p id="setup-msg" class="msg" role="status"></p>
+        </form>
+      </div>
+      <div id="setup-step2" hidden>
+        <p class="ok-line">✓ Two-factor login is on.</p>
+        <p><b>Save these backup codes</b> somewhere safe (a note, a password manager, a photo). Each one works once, if you ever lose your phone. You won't see them again.</p>
+        <pre class="backups" id="backups"></pre>
+        <div class="b-link"><button class="btn" id="backups-copy" type="button">Copy codes</button><button class="btn primary" id="setup-done" type="button">I saved them · continue</button></div>
+      </div>
+    </div>
+
     <div id="panel" class="panel" hidden>
       <div class="panel-top">
-        <div class="b-logo"><img src="/icon.svg" alt="" width="36" height="36"> Admin</div>
+        <div class="b-logo"><img src="/icon.svg" alt="" width="36" height="36"> Admin <span class="badge-2fa" title="Two-factor login is on">🔒 2FA</span></div>
         <div class="panel-actions">
           <a class="btn" href="/" target="_blank" rel="noopener">View site ↗</a>
           <button class="btn" id="logout" type="button">Log out</button>
@@ -49,6 +82,7 @@
         <h1>Your site</h1>
         <p class="muted">What every visitor sees at the site's main address. Save, and it's live within about a minute.</p>
         <p id="store-warn" class="warn" hidden></p>
+        <p id="backup-warn" class="warn" hidden></p>
         <form id="site-form" novalidate>
           <label class="fld">
             <span>Shop name <small class="muted">(optional, defaults to the first sheet's name)</small></span>

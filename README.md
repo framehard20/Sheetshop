@@ -20,6 +20,17 @@ invite code.
    private link is refused with a message and nothing changes. Visitors see
    the new version within about a minute.
 
+**Two-factor login.** The first time you log in, the panel asks you to turn
+on two-factor: scan the QR code with Authy, Google Authenticator or Microsoft
+Authenticator, type the 6-digit code, and save the 8 backup codes it shows.
+From then on, logging in needs the password **and** the code (or one backup
+code, each usable once). Nothing in the panel can be changed until it's on.
+Turning it on ends every older login.
+
+Lost the phone and the backup codes? Reset it: Vercel → Storage → your
+Upstash database → **Open in Upstash** → **Data Browser** → delete the key
+`sheetshop:totp`. The next login with the password sets it up again.
+
 **Extra shop links**, further down the panel, make a separate shop on a long
 signed link of its own (different sheets, name or code) without touching the
 main site. Links made earlier keep working.
@@ -120,8 +131,11 @@ link has died. Answers are cached for a week by Vercel.
 - `lib/google.js` reads tabs and turns rows into products and prices
 - `lib/api.js` the endpoints (`/api/admin`, `/api/sign`, `/api/sheet`, `/api/tab`,
   `/api/img`, `/api/rates`), the password check, admin login and link signing
-- `lib/store.js` where the main site's settings are saved (Upstash Redis, or a
-  local file)
+- `lib/store.js` where the main site's settings and the two-factor secret are
+  saved (Upstash Redis, or local files in `data/`)
+- `lib/totp.js` the 6-digit authenticator codes and backup codes
+- `public/vendor/qrcode.js` QR code drawing for the two-factor setup
+  (qrcode-generator 1.4.4 by Kazuhiko Arase, MIT licence)
 - `public/agents.js` reads any agent link down to platform + item ID, and
   builds the link for the chosen agent with the code
 - `public/catalog.js` categories, brands and search

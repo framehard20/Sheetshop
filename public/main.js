@@ -26,7 +26,7 @@ async function api(path, params, post) {
     ? await fetch(`/api/${path}`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(post) })
     : await fetch(`/api/${path}?${new URLSearchParams(params || {})}`);
   const body = await res.json().catch(() => ({ error: "The server sent a broken answer." }));
-  if (!res.ok) throw new Error(body.error || `Error ${res.status}`);
+  if (!res.ok) throw Object.assign(new Error(body.error || `Error ${res.status}`), { need2fa: !!body.need2fa });
   return body;
 }
 
@@ -114,18 +114,71 @@ async function adminPage() {
 
   let data;
   try { data = await api("admin"); } catch {
+    // password first; then, with two-factor on, the 6-digit code
     $("#login-card").hidden = false;
     $("#login-pass").focus();
+    let needCode = false;
     $("#login-form").onsubmit = async (e) => {
       e.preventDefault();
       $("#login-go").disabled = true;
       say($("#login-msg"), "Checking…");
       try {
-        await api("admin", null, { action: "login", password: $("#login-pass").value });
+        await api("admin", null, { action: "login", password: $("#login-pass").value, code: needCode ? $("#login-code").value.trim() : "" });
         location.reload();
       } catch (err) {
-        say($("#login-msg"), err.message, true);
+        say($("#login-msg"), needCode || !err.need2fa ? err.message : "", true);
+        if (err.need2fa && !needCode) {
+          needCode = true;
+          $("#login-pass-row").hidden = true;
+          $("#login-code-row").hidden = false;
+          $("#login-code").focus();
+        } else if (needCode) $("#login-code").select();
         $("#login-go").disabled = false;
+      }
+    };
+    return;
+  }
+
+  // logged in with the password only: two-factor has to be turned on first
+  if (data.setup2fa) {
+    $("#setup-card").hidden = false;
+    if (!data.storage) {
+      say($("#setup-msg"), "Saving needs the database: connect Upstash for Redis to this project in Vercel first.", true);
+      return;
+    }
+    let started;
+    try { started = await api("admin", null, { action: "2fa-start" }); } catch (err) { say($("#setup-msg"), err.message, true); return; }
+    $("#setup-secret").textContent = started.secret.replace(/(.{4})/g, "$1 ").trim();
+    await new Promise((resolve) => {
+      const sc = document.createElement("script");
+      sc.src = "/vendor/qrcode.js";
+      sc.onload = resolve;
+      sc.onerror = resolve;
+      document.head.append(sc);
+    });
+    if (window.qrcode) {
+      const qr = window.qrcode(0, "M");
+      qr.addData(started.uri);
+      qr.make();
+      $("#qr").innerHTML = qr.createSvgTag({ cellSize: 6, margin: 2, scalable: true });
+    } else $("#qr").hidden = true;
+    $("#setup-code").focus();
+    $("#setup-form").onsubmit = async (e) => {
+      e.preventDefault();
+      $("#setup-go").disabled = true;
+      say($("#setup-msg"), "Checking…");
+      try {
+        const r = await api("admin", null, { action: "2fa-confirm", code: $("#setup-code").value.trim() });
+        $("#setup-step1").hidden = true;
+        $("#setup-step2").hidden = false;
+        $("#backups").textContent = r.backups.join("\n");
+        $("#backups-copy").onclick = async () => {
+          try { await navigator.clipboard.writeText(r.backups.join("\n")); $("#backups-copy").textContent = "Copied"; } catch {}
+        };
+        $("#setup-done").onclick = () => location.reload();
+      } catch (err) {
+        say($("#setup-msg"), err.message, true);
+        $("#setup-go").disabled = false;
       }
     };
     return;
@@ -133,6 +186,10 @@ async function adminPage() {
 
   $("#panel").hidden = false;
   $("#logout").onclick = async () => { await api("admin", null, { action: "logout" }).catch(() => {}); location.reload(); };
+  if (data.backupsLeft <= 2) {
+    $("#backup-warn").hidden = false;
+    $("#backup-warn").textContent = `Only ${data.backupsLeft} backup code${data.backupsLeft === 1 ? "" : "s"} left. To get new ones, reset two-factor (see the README) and set it up again.`;
+  }
   if (!data.storage) {
     $("#store-warn").hidden = false;
     $("#store-warn").textContent = "Saving needs a database, which isn't connected yet: in Vercel open this project → Storage → Create Database → Upstash for Redis (free) → Connect, then deploy again.";
