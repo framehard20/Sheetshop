@@ -761,15 +761,14 @@ async function shop(token) {
   $("#ready-again").addEventListener("click", () => signedUp("before_buy_again"));
   $("#ready-cta").addEventListener("click", goToProduct);
 
-  // ---- welcome gift: a few seconds in, at most every 3 days, never for people who signed up
+  // ---- welcome gift: 5 seconds after the language window is accepted, on
+  // every visit; if another pop-up is open then, it waits until that closes
   function maybeWelcome() {
-    if (!offerOn() || store.get("joined") || document.querySelector("dialog[open]")) return;
-    const last = store.get("welcomeAt") || 0;
-    if (Date.now() - last < 3 * 86400e3) return;
-    store.set("welcomeAt", Date.now());
+    if (!offerOn()) return;
+    if (document.querySelector("dialog[open]")) return setTimeout(maybeWelcome, 500);
     openModal($("#welcome"));
   }
-  introDone.then(() => setTimeout(maybeWelcome, 9000));
+  introDone.then(() => setTimeout(maybeWelcome, 5000));
   $("#wel-cta").addEventListener("click", () => { signedUp("welcome_popup"); $("#welcome").close(); });
   $("#offer").addEventListener("click", () => { if (offerOn()) signedUp("under_title"); });
   $("#topbar").addEventListener("click", () => signedUp("top_bar"));

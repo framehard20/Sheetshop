@@ -59,8 +59,8 @@ On your own computer the settings go to `data/site.json` instead.
 - Tapping a product opens its window, like flayfind's: photos, price, a
   "Buy on Uidbuy" button and the $800 + 40% sign-up box.
 - With Uidbuy and a code: the "$800 + 40% off shipping" offer in the header and
-  in a floating bar, a welcome pop-up (9 seconds after the language window, at
-  most every 3 days, never again after someone clicks to sign up), and a
+  in a floating bar, a welcome pop-up (5 seconds after Accept in the language
+  window, on every visit, waiting if another pop-up is open), and a
   sign-up step with the coupon on the first "Buy" pressed in each page load
   (a reload shows it again), which then takes them to the product.
 - While a pop-up is open the page behind it doesn't move.
