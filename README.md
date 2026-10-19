@@ -9,16 +9,24 @@ invite code.
 
 ## Use it
 
-1. Open the site and paste one or more sheet links (up to 10). Each sheet must
-   be shared as **Anyone with the link → Viewer** (or "Published to the web").
-2. Choose your agent and type your invite code. Add more agents if you want
-   buyers to be able to switch; the first one is the default.
-3. Optionally give the shop a name and a logo (an https link to a picture).
-4. Type the owner password and press **Generate shop**, then copy the shop
-   link and share it.
+**The main site** (`/`) shows the shop you set up in the admin panel:
 
-Nothing is stored anywhere: change a sheet and the shop changes with it
-(within about 10 minutes, because answers are cached).
+1. Open `/admin` and log in with the owner password (`SHEETSHOP_PASSWORD`).
+   The login lasts 30 days on that browser; **Log out** ends it.
+2. Under **Your site**, set the shop name, an optional logo (an https link to
+   a picture), the Google Sheets (up to 10, each shared as **Anyone with the
+   link → Viewer**) and your agent and invite code.
+3. Press **Save and publish**. The sheets are read first, so a wrong or
+   private link is refused with a message and nothing changes. Visitors see
+   the new version within about a minute.
+
+**Extra shop links**, further down the panel, make a separate shop on a long
+signed link of its own (different sheets, name or code) without touching the
+main site. Links made earlier keep working.
+
+Saving needs a database: in Vercel, open the project → **Storage** → **Create
+Database** → **Upstash for Redis** (free) → **Connect**, then deploy again.
+On your own computer the settings go to `data/site.json` instead.
 
 ## What buyers get
 
@@ -110,14 +118,16 @@ and `/api/img` looks up its current link, reading the sheet again when the
 link has died. Answers are cached for a week by Vercel.
 
 - `lib/google.js` reads tabs and turns rows into products and prices
-- `lib/api.js` the endpoints (`/api/sign`, `/api/sheet`, `/api/tab`, `/api/img`,
-  `/api/rates`), the password check and link signing
+- `lib/api.js` the endpoints (`/api/admin`, `/api/sign`, `/api/sheet`, `/api/tab`,
+  `/api/img`, `/api/rates`), the password check, admin login and link signing
+- `lib/store.js` where the main site's settings are saved (Upstash Redis, or a
+  local file)
 - `public/agents.js` reads any agent link down to platform + item ID, and
   builds the link for the chosen agent with the code
 - `public/catalog.js` categories, brands and search
 - `public/i18n.js` texts in seven languages, currencies
 - `public/track.js` counting sign-up clicks with Umami
-- `public/main.js` the builder page and the shop page
+- `public/main.js` the admin panel and the shop page
 
 ### Known limits
 
@@ -146,8 +156,13 @@ node server.js
 
 Then open http://localhost:3210
 
-## Put it online (free)
+## Put it online
 
 Vercel: import this folder as a project (framework preset **Other**, no build
 command). `public/` is served as the site and the files in `api/` become the
-endpoints.
+endpoints. Settings: `SHEETSHOP_PASSWORD` (required), the Upstash database
+(for the admin panel), `SHEETSHOP_GOOGLE_KEY` and `SHEETSHOP_UMAMI_ID`
+(optional).
+
+Own domain: Vercel → the project → **Settings → Domains** → add it, then set
+the DNS records Vercel shows at the place you bought the domain.

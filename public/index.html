@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Sheetshop</title>
   <meta name="description" content="Finds from China, with quality-checked shopping through your agent.">
+  <meta name="robots" content="index, follow">
   <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
   <meta property="og:title" content="Sheetshop">
@@ -20,52 +21,90 @@
   </script>
 </head>
 <body>
-  <!-- ================= Builder (owner only): no ?c= in the address ================= -->
-  <main id="builder" class="builder" hidden>
-    <div class="b-card">
-      <div class="b-logo"><img src="/icon.svg" alt="" width="36" height="36"> Sheetshop</div>
-      <h1>Turn Google Sheets into a shop</h1>
-      <p class="muted">Paste one or more spreadsheets full of product links. Every product is sorted into categories, and every link is rebuilt for your agent with your invite code.</p>
-
-      <form id="b-form" novalidate>
-        <div class="fld">
-          <span>Google Sheet links</span>
-          <div id="b-sheets"></div>
-          <button type="button" id="b-add-sheet" class="link-btn">+ Add another sheet</button>
-          <small class="muted">Each sheet must be shared as <b>Anyone with the link → Viewer</b>. Up to 10.</small>
-        </div>
-
-        <div class="fld">
-          <span>Your agent and invite code</span>
-          <div id="b-agents"></div>
-          <button type="button" id="b-add" class="link-btn">+ Add another agent (buyers can switch)</button>
-        </div>
-
-        <label class="fld">
-          <span>Shop name <small class="muted">(optional, defaults to the first sheet's name)</small></span>
-          <input id="b-title" type="text" maxlength="60" autocomplete="off" placeholder="My finds">
-        </label>
-
-        <label class="fld">
-          <span>Logo image link <small class="muted">(optional, https://…)</small></span>
-          <input id="b-logo" type="url" inputmode="url" autocomplete="off" placeholder="https://…/logo.png">
-        </label>
-
+  <!-- ================= Admin panel (owner only): /admin ================= -->
+  <main id="admin" class="builder" hidden>
+    <div class="b-card" id="login-card" hidden>
+      <div class="b-logo"><img src="/icon.svg" alt="" width="36" height="36"> Admin</div>
+      <h1>Log in</h1>
+      <form id="login-form">
         <label class="fld">
           <span>Owner password</span>
-          <input id="b-pass" type="password" autocomplete="current-password" required>
-          <small class="muted">Only the owner of this site can make shops. Shop links are signed, so nobody can change the code inside them.</small>
+          <input id="login-pass" type="password" autocomplete="current-password" required>
         </label>
-
-        <button class="btn primary" id="b-go" type="submit">Generate shop</button>
-        <p id="b-msg" class="msg" role="status"></p>
+        <button class="btn primary big" id="login-go" type="submit">Log in</button>
+        <p id="login-msg" class="msg" role="status"></p>
       </form>
+    </div>
 
-      <div id="b-result" class="b-result" hidden>
-        <span class="muted">Your shop link</span>
-        <div class="b-link"><input id="b-url" readonly aria-label="Shop link"><button class="btn" id="b-copy" type="button">Copy</button></div>
-        <a id="b-open" class="btn primary" target="_blank" rel="noopener">Open shop ↗</a>
+    <div id="panel" class="panel" hidden>
+      <div class="panel-top">
+        <div class="b-logo"><img src="/icon.svg" alt="" width="36" height="36"> Admin</div>
+        <div class="panel-actions">
+          <a class="btn" href="/" target="_blank" rel="noopener">View site ↗</a>
+          <button class="btn" id="logout" type="button">Log out</button>
+        </div>
       </div>
+
+      <section class="b-card">
+        <h1>Your site</h1>
+        <p class="muted">What every visitor sees at the site's main address. Save, and it's live within about a minute.</p>
+        <p id="store-warn" class="warn" hidden></p>
+        <form id="site-form" novalidate>
+          <label class="fld">
+            <span>Shop name <small class="muted">(optional, defaults to the first sheet's name)</small></span>
+            <input id="s-title" type="text" maxlength="60" autocomplete="off" placeholder="Master Spread">
+          </label>
+          <label class="fld">
+            <span>Logo image link <small class="muted">(optional, https://…)</small></span>
+            <input id="s-logo" type="url" inputmode="url" autocomplete="off" placeholder="https://…/logo.png">
+          </label>
+          <div class="fld">
+            <span>Google Sheets</span>
+            <div id="s-sheets"></div>
+            <button type="button" id="s-add-sheet" class="link-btn">+ Add another sheet</button>
+            <small class="muted">Each sheet must be shared as <b>Anyone with the link → Viewer</b>. Up to 10; their products are merged and sorted into categories.</small>
+          </div>
+          <div class="fld">
+            <span>Agent and invite code</span>
+            <div id="s-agents"></div>
+            <button type="button" id="s-add-agent" class="link-btn">+ Add another agent (buyers can switch)</button>
+          </div>
+          <button class="btn primary big" id="s-save" type="submit">Save and publish</button>
+          <p id="s-msg" class="msg" role="status"></p>
+        </form>
+      </section>
+
+      <section class="b-card">
+        <h1>Extra shop links</h1>
+        <p class="muted">A separate shop with its own sheets, name or code, on a long link of its own (the main site doesn't change). Links made before keep working.</p>
+        <form id="b-form" novalidate>
+          <div class="fld">
+            <span>Google Sheets</span>
+            <div id="b-sheets"></div>
+            <button type="button" id="b-add-sheet" class="link-btn">+ Add another sheet</button>
+          </div>
+          <div class="fld">
+            <span>Agent and invite code</span>
+            <div id="b-agents"></div>
+            <button type="button" id="b-add" class="link-btn">+ Add another agent</button>
+          </div>
+          <label class="fld">
+            <span>Shop name <small class="muted">(optional)</small></span>
+            <input id="b-title" type="text" maxlength="60" autocomplete="off" placeholder="My finds">
+          </label>
+          <label class="fld">
+            <span>Logo image link <small class="muted">(optional, https://…)</small></span>
+            <input id="b-logo" type="url" inputmode="url" autocomplete="off" placeholder="https://…/logo.png">
+          </label>
+          <button class="btn" id="b-go" type="submit">Make a shop link</button>
+          <p id="b-msg" class="msg" role="status"></p>
+        </form>
+        <div id="b-result" class="b-result" hidden>
+          <span class="muted">Shop link</span>
+          <div class="b-link"><input id="b-url" readonly aria-label="Shop link"><button class="btn" id="b-copy" type="button">Copy</button></div>
+          <a id="b-open" class="btn primary" target="_blank" rel="noopener">Open shop ↗</a>
+        </div>
+      </section>
     </div>
   </main>
 

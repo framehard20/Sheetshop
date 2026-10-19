@@ -5,7 +5,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { gzipSync } from "node:zlib";
 import { fileURLToPath } from "node:url";
-import { sign, sheet, tab, img, rates } from "./lib/api.js";
+import { sign, admin, sheet, tab, img, rates } from "./lib/api.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(here, "public");
@@ -18,7 +18,7 @@ try {
   }
 } catch {}
 const port = Number(process.env.PORT) || 3210;
-const routes = { "/api/sign": sign, "/api/sheet": sheet, "/api/tab": tab, "/api/img": img, "/api/rates": rates };
+const routes = { "/api/sign": sign, "/api/admin": admin, "/api/sheet": sheet, "/api/tab": tab, "/api/img": img, "/api/rates": rates };
 const types = {
   ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8",
   ".css": "text/css; charset=utf-8", ".svg": "image/svg+xml", ".png": "image/png",
@@ -35,7 +35,10 @@ http.createServer(async (req, res) => {
       for await (const chunk of req) { raw += chunk; if (raw.length > 1e5) break; }
       try { input = JSON.parse(raw); } catch {}
     }
-    const { status, headers, body } = await route({ method: req.method, query: Object.fromEntries(url.searchParams), body: input });
+    const { status, headers, body } = await route({
+      method: req.method, query: Object.fromEntries(url.searchParams), body: input,
+      cookie: req.headers.cookie || "", secure: false,
+    });
     if (Buffer.isBuffer(body)) return res.writeHead(status, headers).end(body);
     const json = Buffer.from(JSON.stringify(body));
     const gz = /gzip/.test(req.headers["accept-encoding"] || "");
@@ -46,7 +49,9 @@ http.createServer(async (req, res) => {
     });
     return res.end(gz ? gzipSync(json) : json);
   }
-  const file = path.join(root, path.normalize(url.pathname === "/" ? "/index.html" : url.pathname));
+  // the admin panel is the same page; it shows the panel when the address is /admin
+  const page = url.pathname === "/" || url.pathname.replace(/\/+$/, "") === "/admin" ? "/index.html" : url.pathname;
+  const file = path.join(root, path.normalize(page));
   if (!file.startsWith(root)) return res.writeHead(403).end();
   try {
     const data = await fs.readFile(file);

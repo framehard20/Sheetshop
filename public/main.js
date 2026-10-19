@@ -72,27 +72,29 @@ const isDark = () => document.documentElement.dataset.theme
   : matchMedia("(prefers-color-scheme: dark)").matches;
 
 const qs = new URLSearchParams(location.search);
-// Shop links carry ?c=<signed settings>; older ?s= links are no longer accepted.
-if (qs.has("c") || qs.has("s")) shop(qs.get("c") || ""); else builder();
+// /admin is the owner's panel; ?c=<signed settings> is an extra shop link;
+// anything else is the main site, as saved in the panel.
+if (location.pathname.replace(/\/+$/, "") === "/admin") adminPage();
+else shop(qs.get("c") || "");
 
-// ======================================================================== builder
+// ======================================================================== admin
 
-function builder() {
-  $("#builder").hidden = false;
-  const saved = store.get("builder") || {};
-
-  const rowList = (box, make) => (value) => {
+// Editable lists of sheet links and agent + code rows.
+function rowList(box, make) {
+  return (value) => {
     const row = make(value);
     const del = el("button", { type: "button", className: "row-x", textContent: "✕", title: "Remove" });
     del.onclick = () => { if (box.children.length > 1) row.remove(); };
     row.append(del);
     box.append(row);
   };
-  const sheetBox = $("#b-sheets");
-  const addSheet = rowList(sheetBox, (v = "") => el("div", { className: "row-2" },
+}
+function sheetRows(box) {
+  return rowList(box, (v = "") => el("div", { className: "row-2" },
     el("input", { type: "url", inputMode: "url", autocomplete: "off", value: v, placeholder: "https://docs.google.com/spreadsheets/d/…", "aria-label": "Google Sheet link" })));
-  const agentBox = $("#b-agents");
-  const addAgent = rowList(agentBox, (a = {}) => {
+}
+function agentRows(box) {
+  return rowList(box, (a = {}) => {
     const select = el("select", { "aria-label": "Agent" });
     for (const ag of AGENTS) select.append(el("option", { value: ag.id, textContent: ag.name }));
     select.value = a.id || "uidbuy";
@@ -101,34 +103,96 @@ function builder() {
     select.onchange();
     return el("div", { className: "agent-row" }, select, code);
   });
+}
+const readSheets = (box) => [...box.querySelectorAll("input")].map((i) => i.value.trim()).filter(Boolean);
+const readAgents = (box) => [...box.children].map((r) => ({ id: r.querySelector("select").value, code: r.querySelector("input").value.trim() }));
 
-  (saved.sheets?.length ? saved.sheets : [""]).forEach(addSheet);
-  (saved.agents?.length ? saved.agents : [{}]).forEach(addAgent);
-  $("#b-add-sheet").onclick = () => { if (sheetBox.children.length < 10) addSheet(""); };
-  $("#b-add").onclick = () => addAgent({ id: "kakobuy" });
+async function adminPage() {
+  document.title = "Admin · Sheetshop";
+  $("#admin").hidden = false;
+  const say = (node, text, bad) => { node.className = "msg" + (bad ? " err" : ""); node.textContent = text; };
+
+  let data;
+  try { data = await api("admin"); } catch {
+    $("#login-card").hidden = false;
+    $("#login-pass").focus();
+    $("#login-form").onsubmit = async (e) => {
+      e.preventDefault();
+      $("#login-go").disabled = true;
+      say($("#login-msg"), "Checking…");
+      try {
+        await api("admin", null, { action: "login", password: $("#login-pass").value });
+        location.reload();
+      } catch (err) {
+        say($("#login-msg"), err.message, true);
+        $("#login-go").disabled = false;
+      }
+    };
+    return;
+  }
+
+  $("#panel").hidden = false;
+  $("#logout").onclick = async () => { await api("admin", null, { action: "logout" }).catch(() => {}); location.reload(); };
+  if (!data.storage) {
+    $("#store-warn").hidden = false;
+    $("#store-warn").textContent = "Saving needs a database, which isn't connected yet: in Vercel open this project → Storage → Create Database → Upstash for Redis (free) → Connect, then deploy again.";
+  }
+
+  // ---- your site
+  const site = data.site || {};
+  const sBox = $("#s-sheets"), aBox = $("#s-agents");
+  const addSheet = sheetRows(sBox), addAgent = agentRows(aBox);
+  (site.sheets?.length ? site.sheets : [""]).forEach(addSheet);
+  (site.agents?.length ? site.agents : [{}]).forEach(addAgent);
+  $("#s-add-sheet").onclick = () => { if (sBox.children.length < 10) addSheet(""); };
+  $("#s-add-agent").onclick = () => addAgent({ id: "kakobuy" });
+  $("#s-title").value = site.title || "";
+  $("#s-logo").value = site.logo || "";
+  if (site.savedAt) say($("#s-msg"), "Last saved " + new Date(site.savedAt).toLocaleString());
+  $("#site-form").onsubmit = async (e) => {
+    e.preventDefault();
+    $("#s-save").disabled = true;
+    say($("#s-msg"), "Reading the sheets and saving…");
+    try {
+      const r = await api("admin", null, {
+        action: "save", sheets: readSheets(sBox), agents: readAgents(aBox),
+        title: $("#s-title").value.trim(), logo: $("#s-logo").value.trim(),
+      });
+      say($("#s-msg"), `Saved ✓ “${r.title}”: ${r.sheets} sheet${r.sheets === 1 ? "" : "s"}, ${r.tabs} tab${r.tabs === 1 ? "" : "s"}. Visitors see it within about a minute.`);
+    } catch (err) {
+      say($("#s-msg"), err.message, true);
+    } finally {
+      $("#s-save").disabled = false;
+    }
+  };
+
+  // ---- extra shop links (signed, on their own long link)
+  const saved = store.get("builder") || {};
+  const bSheets = $("#b-sheets"), bAgents = $("#b-agents");
+  const addB = sheetRows(bSheets), addBA = agentRows(bAgents);
+  (saved.sheets?.length ? saved.sheets : [""]).forEach(addB);
+  (saved.agents?.length ? saved.agents : [{}]).forEach(addBA);
+  $("#b-add-sheet").onclick = () => { if (bSheets.children.length < 10) addB(""); };
+  $("#b-add").onclick = () => addBA({ id: "kakobuy" });
   $("#b-title").value = saved.title || "";
   $("#b-logo").value = saved.logo || "";
-
   $("#b-form").onsubmit = async (e) => {
     e.preventDefault();
-    const msg = $("#b-msg");
-    const sheets = [...sheetBox.querySelectorAll("input")].map((i) => i.value.trim()).filter(Boolean);
-    const agents = [...agentBox.children].map((r) => ({ id: r.querySelector("select").value, code: r.querySelector("input").value.trim() }));
-    const title = $("#b-title").value.trim();
-    const logo = $("#b-logo").value.trim();
-    store.set("builder", { sheets, agents, title, logo }); // never the password
-    msg.className = "msg"; msg.textContent = "Reading the sheets…";
+    const sheets = readSheets(bSheets), agents = readAgents(bAgents);
+    const title = $("#b-title").value.trim(), logo = $("#b-logo").value.trim();
+    store.set("builder", { sheets, agents, title, logo });
     $("#b-go").disabled = true;
     $("#b-result").hidden = true;
+    say($("#b-msg"), "Reading the sheets…");
     try {
-      const info = await api("sign", null, { password: $("#b-pass").value, sheets, agents, title, logo });
+      const info = await api("sign", null, { sheets, agents, title, logo });
       const url = `${location.origin}/?c=${info.token}`;
-      msg.textContent = `Found “${info.title}”: ${info.sheets} sheet${info.sheets === 1 ? "" : "s"}, ${info.tabs} tab${info.tabs === 1 ? "" : "s"}.`;
+      say($("#b-msg"), `Found “${info.title}”: ${info.sheets} sheet${info.sheets === 1 ? "" : "s"}, ${info.tabs} tab${info.tabs === 1 ? "" : "s"}.`);
       $("#b-url").value = url;
       $("#b-open").href = url;
       $("#b-result").hidden = false;
     } catch (err) {
-      msg.className = "msg err"; msg.textContent = err.message;
+      say($("#b-msg"), err.message, true);
     } finally {
       $("#b-go").disabled = false;
     }
@@ -140,6 +204,7 @@ function builder() {
     setTimeout(() => ($("#b-copy").textContent = "Copy"), 1500);
   };
 }
+
 
 // ======================================================================== shop
 
@@ -291,7 +356,7 @@ async function shop(token) {
   async function loadInto(into, task, live) {
     let page = 0, pages = 1;
     while (page < pages) {
-      const r = await api("tab", { c: token, sh: task.sh, gid: task.gid, page, v: task.v });
+      const r = await api("tab", { c: token, sh: task.sh, id: task.sheet.id, gid: task.gid, page, v: task.v });
       ingest(r.items, task, page, into);
       pages = r.pages;
       page++;

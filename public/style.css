@@ -492,3 +492,12 @@ input[type="text"], input[type="url"], input[type="password"], input[type="searc
   .trust li { font-size: 11.5px; padding: 8px 10px; }
 }
 .trust li { text-align: left; }
+
+/* ---------------------------------------------------------------- admin panel */
+.panel { width: 100%; max-width: 640px; display: grid; gap: 18px; }
+.panel .b-card { max-width: none; }
+.panel-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.panel-actions { display: flex; gap: 8px; }
+.panel-actions .btn { min-height: 40px; padding: 0 16px; font-size: 14px; }
+.warn { margin: 14px 0 0; padding: 12px 14px; border-radius: 12px; background: #fdece8; border: 1px solid #f6c9bf; color: var(--red-ink); font-size: 13.5px; font-weight: 600; }
+#admin { gap: 18px; }
