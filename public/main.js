@@ -206,6 +206,7 @@ async function adminPage() {
   $("#s-title").value = site.title || "";
   $("#s-logo").value = site.logo || "";
   if (site.savedAt) say($("#s-msg"), "Last saved " + new Date(site.savedAt).toLocaleString());
+  else if (site.starting) say($("#s-msg"), "This is the starting setup the site shows now. Change anything and press Save and publish to keep your own.");
   $("#site-form").onsubmit = async (e) => {
     e.preventDefault();
     $("#s-save").disabled = true;
@@ -262,6 +263,42 @@ async function adminPage() {
   };
 }
 
+
+// ======================================================================== header
+
+// The big title is sized so title + both sneakers always fit the screen width
+// and stay centred, whatever the title or language.
+function fitMast() {
+  const mast = $("#mast");
+  if (!mast) return;
+  const box = getComputedStyle(mast.parentElement);
+  const avail = Math.min(mast.parentElement.clientWidth - parseFloat(box.paddingLeft) - parseFloat(box.paddingRight), 1100);
+  mast.style.setProperty("--t", "100px");
+  const w = mast.scrollWidth; // width at 100px
+  const size = Math.max(30, Math.min(150, (avail / w) * 100));
+  mast.style.setProperty("--t", size.toFixed(1) + "px");
+}
+
+// Flayfind's floating 3D sneaker, one on each side (the left one mirrored so
+// both point outwards). three.js loads after the page, and only if WebGL works.
+let mastStarted = false;
+function startMast() {
+  fitMast();
+  // the title font arrives after the first paint and changes every width
+  document.fonts?.load("400 100px Anton").then(fitMast).catch(() => {});
+  document.fonts?.ready.then(fitMast).catch(() => {});
+  if (!mastStarted) addEventListener("resize", fitMast);
+  if (mastStarted) return;
+  mastStarted = true;
+  const ok = (() => { try { return !!document.createElement("canvas").getContext("webgl2"); } catch { return false; } })();
+  if (!ok) return;
+  import("/garment3d.js").then(({ mountGarment }) => {
+    const [l, r] = document.querySelectorAll(".mast-shoe canvas");
+    const shoe = (canvas, opts) => mountGarment(canvas, { url: "/models/sneaker.glb", pitch: 0.12, onLoad: () => canvas.classList.add("ready"), ...opts });
+    shoe(l, { yaw: 0.45, tilt: 10, mirror: true, phase: 0 });
+    shoe(r, { yaw: -0.45, tilt: -10, phase: 2.6 });
+  }).catch(() => {});
+}
 
 // ======================================================================== shop
 
@@ -746,6 +783,8 @@ async function shop(token) {
   // ---- texts (again whenever the language changes)
   function paintTexts() {
     document.documentElement.lang = lang;
+    $("#mast-sub").textContent = t("mastSub");
+    fitMast();
     $("#q").placeholder = t("search");
     $("#sort").replaceChildren(...[["featured", "sortFeatured"], ["low", "sortLow"], ["high", "sortHigh"], ["name", "sortName"]]
       .map(([v, k]) => el("option", { value: v, textContent: t(k) })));
@@ -817,6 +856,7 @@ async function shop(token) {
   const title = info.title;
   document.title = title;
   $("#title").textContent = title;
+  startMast();
   $("#nav-title").textContent = title;
   for (const img of [$("#hero-logo"), $("#nav-logo")]) {
     img.src = info.logo || "/icon.svg";

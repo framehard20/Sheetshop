@@ -35,6 +35,9 @@ Upstash database → **Open in Upstash** → **Data Browser** → delete the key
 signed link of its own (different sheets, name or code) without touching the
 main site. Links made earlier keep working.
 
+Until you save, the main site shows a starting setup (Masterspread, the first
+sheet, Uidbuy with code UWSV3X; see `lib/store.js`).
+
 Saving needs a database: in Vercel, open the project → **Storage** → **Create
 Database** → **Upstash for Redis** (free) → **Connect**, then deploy again.
 On your own computer the settings go to `data/site.json` instead.
@@ -134,6 +137,10 @@ link has died. Answers are cached for a week by Vercel.
 - `lib/store.js` where the main site's settings and the two-factor secret are
   saved (Upstash Redis, or local files in `data/`)
 - `lib/totp.js` the 6-digit authenticator codes and backup codes
+- `public/garment3d.js` + `public/models/sneaker.glb` the floating 3D sneakers
+  beside the title (flayfind's, drawn with three.js 0.186 in `public/vendor/three`,
+  MIT licence)
+- `public/fonts/anton-*.woff2` the title font (Anton, SIL Open Font License)
 - `public/vendor/qrcode.js` QR code drawing for the two-factor setup
   (qrcode-generator 1.4.4 by Kazuhiko Arase, MIT licence)
 - `public/agents.js` reads any agent link down to platform + item ID, and

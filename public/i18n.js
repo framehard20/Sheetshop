@@ -7,6 +7,7 @@ export const LANGS = {
 
 const T = {
   en: {
+    mastSub: "The product list",
     search: "Search products", all: "All", saved: "Saved", products: "{n} products", product: "1 product",
     loading: "Loading…", stillLoading: "still loading", nothing: "Nothing matches “{q}”.",
     nothingTip: "Try fewer words or another spelling.", empty: "Nothing here yet.",
@@ -44,6 +45,7 @@ const T = {
     },
   },
   es: {
+    mastSub: "Lista de productos",
     search: "Buscar productos", all: "Todo", saved: "Guardados", products: "{n} productos", product: "1 producto",
     loading: "Cargando…", stillLoading: "aún cargando", nothing: "Nada coincide con «{q}».",
     nothingTip: "Prueba con menos palabras o escríbelo de otra forma.", empty: "Aún no hay nada aquí.",
@@ -81,6 +83,7 @@ const T = {
     },
   },
   fr: {
+    mastSub: "La liste de produits",
     search: "Rechercher des produits", all: "Tout", saved: "Favoris", products: "{n} produits", product: "1 produit",
     loading: "Chargement…", stillLoading: "chargement en cours", nothing: "Aucun résultat pour « {q} ».",
     nothingTip: "Essayez avec moins de mots ou une autre orthographe.", empty: "Rien ici pour l’instant.",
@@ -118,6 +121,7 @@ const T = {
     },
   },
   de: {
+    mastSub: "Die Produktliste",
     search: "Produkte suchen", all: "Alle", saved: "Gemerkt", products: "{n} Produkte", product: "1 Produkt",
     loading: "Wird geladen…", stillLoading: "lädt noch", nothing: "Keine Treffer für „{q}“.",
     nothingTip: "Versuch es mit weniger Wörtern oder einer anderen Schreibweise.", empty: "Hier ist noch nichts.",
@@ -155,6 +159,7 @@ const T = {
     },
   },
   it: {
+    mastSub: "La lista dei prodotti",
     search: "Cerca prodotti", all: "Tutto", saved: "Salvati", products: "{n} prodotti", product: "1 prodotto",
     loading: "Caricamento…", stillLoading: "ancora in caricamento", nothing: "Nessun risultato per «{q}».",
     nothingTip: "Prova con meno parole o un’altra grafia.", empty: "Ancora niente qui.",
@@ -192,6 +197,7 @@ const T = {
     },
   },
   pt: {
+    mastSub: "Lista de produtos",
     search: "Procurar produtos", all: "Tudo", saved: "Guardados", products: "{n} produtos", product: "1 produto",
     loading: "A carregar…", stillLoading: "ainda a carregar", nothing: "Nada corresponde a “{q}”.",
     nothingTip: "Tenta com menos palavras ou outra grafia.", empty: "Ainda não há nada aqui.",
@@ -229,6 +235,7 @@ const T = {
     },
   },
   zh: {
+    mastSub: "产品清单",
     search: "搜索商品", all: "全部", saved: "收藏", products: "{n} 件商品", product: "1 件商品",
     loading: "加载中…", stillLoading: "仍在加载", nothing: "没有与“{q}”匹配的商品。",
     nothingTip: "试试更少的词或换一种写法。", empty: "这里还没有商品。",

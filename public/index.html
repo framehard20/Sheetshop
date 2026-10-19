@@ -14,7 +14,9 @@
   <link rel="icon" href="/icon.svg" type="image/svg+xml">
   <link rel="preload" href="/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/anton-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="/style.css">
+  <script type="importmap">{ "imports": { "three": "/vendor/three/three.module.js" } }</script>
   <script>
     // Theme before first paint, so dark mode doesn't flash white.
     try { const t = JSON.parse(localStorage.getItem("sheetshop:theme")); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; } catch {}
@@ -169,10 +171,14 @@
     </header>
 
     <section class="hero" id="top">
-      <div class="hero-title">
-        <img id="hero-logo" class="hero-logo" alt="" width="64" height="64">
-        <h1 id="title"></h1>
+      <!-- title with a 3D sneaker on each side, the list line and the logo, all centred -->
+      <div class="mast" id="mast">
+        <div class="mast-shoe mast-shoe-l" aria-hidden="true"><canvas></canvas></div>
+        <h1 id="title" class="mast-title"></h1>
+        <p id="mast-sub" class="mast-sub"></p>
+        <div class="mast-shoe mast-shoe-r" aria-hidden="true"><canvas></canvas></div>
       </div>
+      <img id="hero-logo" class="hero-logo" alt="" width="76" height="76">
       <p id="subtitle" class="hero-sub"></p>
       <a id="offer" class="offer" target="_blank" rel="noopener sponsored" hidden>
         <span class="offer-badge" aria-hidden="true">$800</span>
