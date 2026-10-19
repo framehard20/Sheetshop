@@ -683,7 +683,7 @@ async function shop(token) {
     status(n ? t(n === 1 ? "product" : "products", { n: n.toLocaleString(locale) }) + more : loadingLeft ? t("loading") : "");
     const edited = lastEdit();
     $("#subtitle").textContent = edited
-      ? t("updatedAt", { n: items.length.toLocaleString(locale), date: new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(new Date(edited)) })
+      ? t("updatedAt", { n: items.length.toLocaleString(locale), date: new Intl.DateTimeFormat(locale, { month: "long", year: "numeric" }).format(new Date(edited)) })
       : t("fromSheets", { n: items.length.toLocaleString(locale) });
     $("#list-title").textContent = query ? `“${query}”` : cat === "all" ? t("allProducts") : cat === "saved" ? t("saved") : t.cat(cat);
   }
