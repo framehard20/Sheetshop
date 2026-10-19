@@ -302,7 +302,25 @@ function startMast() {
 
 // ======================================================================== shop
 
+// The shop's text and photos aren't meant to be copied (same as flayfind's
+// CopyGuard). The CSS (html.guard) turns off selection and the iPhone
+// long-press menu; this catches keyboard/menu copy and cut, select-all,
+// dragging photos out and the right-click / long-press menu on photos.
+// Fields keep working; the share button writes with navigator.clipboard,
+// which doesn't go through these events. The admin panel isn't guarded.
+function guardCopying() {
+  document.documentElement.classList.add("guard");
+  const editable = (t) => t instanceof Element && !!t.closest("input, textarea, select, [contenteditable='true']");
+  const block = (e) => { if (!editable(e.target)) e.preventDefault(); };
+  document.addEventListener("copy", block);
+  document.addEventListener("cut", block);
+  document.addEventListener("selectstart", block);
+  document.addEventListener("contextmenu", (e) => { if (e.target instanceof Element && e.target.closest("img, canvas")) e.preventDefault(); });
+  document.addEventListener("dragstart", (e) => { if (e.target instanceof Element && e.target.closest("img, a, canvas")) e.preventDefault(); });
+}
+
 async function shop(token) {
+  guardCopying();
   $("#shop").hidden = false;
   let lang = pickLang(qs.get("lang") || store.get("lang"));
   let t = translator(lang);

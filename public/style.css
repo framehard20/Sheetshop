@@ -549,3 +549,10 @@ input[type="text"], input[type="url"], input[type="password"], input[type="searc
 .mast-shoe-l { grid-column: 1; justify-self: end; }
 .mast-shoe-r { grid-column: 3; justify-self: start; }
 .mast-logo { grid-column: 2; grid-row: 3; width: clamp(64px, .62em, 96px); height: clamp(64px, .62em, 96px); margin: .03em .1em 0; border-radius: 22%; object-fit: cover; box-shadow: 0 10px 24px -12px rgb(10 10 10 / .5); }
+
+/* ---------------------------------------------------------------- no copying (shop only)
+   Like flayfind: text and photos can't be selected, and iPhones get no
+   long-press menu. Search and other fields keep working. */
+html.guard, html.guard body { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+html.guard input, html.guard textarea, html.guard select { -webkit-user-select: text; user-select: text; -webkit-touch-callout: default; }
+html.guard img, html.guard canvas { -webkit-user-drag: none; }
