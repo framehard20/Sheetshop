@@ -681,10 +681,8 @@ async function shop(token) {
     const n = list.length;
     const more = loadingLeft > 0 ? ` · ${t("stillLoading")}…` : "";
     status(n ? t(n === 1 ? "product" : "products", { n: n.toLocaleString(locale) }) + more : loadingLeft ? t("loading") : "");
-    const edited = lastEdit();
-    $("#subtitle").textContent = edited
-      ? t("updatedAt", { n: items.length.toLocaleString(locale), date: new Intl.DateTimeFormat(locale, { month: "long", year: "numeric" }).format(new Date(edited)) })
-      : t("fromSheets", { n: items.length.toLocaleString(locale) });
+    // a fixed "updated monthly"; the shop still refreshes itself after each edit
+    $("#subtitle").textContent = t("updatedMonthly", { n: items.length.toLocaleString(locale) });
     $("#list-title").textContent = query ? `“${query}”` : cat === "all" ? t("allProducts") : cat === "saved" ? t("saved") : t.cat(cat);
   }
 
