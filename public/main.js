@@ -274,7 +274,7 @@ function fitMast() {
   const box = getComputedStyle(mast.parentElement);
   const avail = Math.min(mast.parentElement.clientWidth - parseFloat(box.paddingLeft) - parseFloat(box.paddingRight), 1100);
   mast.style.setProperty("--t", "100px");
-  const w = mast.scrollWidth; // width at 100px
+  const w = $("#title").scrollWidth; // width at 100px; the sneakers and logo sit in the row below, within it
   const size = Math.max(30, Math.min(150, (avail / w) * 100));
   mast.style.setProperty("--t", size.toFixed(1) + "px");
 }
@@ -295,8 +295,8 @@ function startMast() {
   import("/garment3d.js").then(({ mountGarment }) => {
     const [l, r] = document.querySelectorAll(".mast-shoe canvas");
     const shoe = (canvas, opts) => mountGarment(canvas, { url: "/models/sneaker.glb", pitch: 0.12, onLoad: () => canvas.classList.add("ready"), ...opts });
-    shoe(l, { yaw: 0.45, tilt: 10, mirror: true, phase: 0 });
-    shoe(r, { yaw: -0.45, tilt: -10, phase: 2.6 });
+    shoe(l, { yaw: 0.45, mirror: true, phase: 0 });
+    shoe(r, { yaw: -0.45, phase: 2.6 });
   }).catch(() => {});
 }
 
@@ -665,7 +665,7 @@ async function shop(token) {
     status(n ? t(n === 1 ? "product" : "products", { n: n.toLocaleString(locale) }) + more : loadingLeft ? t("loading") : "");
     const edited = lastEdit();
     $("#subtitle").textContent = edited
-      ? t("updatedAt", { n: items.length.toLocaleString(locale), date: new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(edited)) })
+      ? t("updatedAt", { n: items.length.toLocaleString(locale), date: new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(new Date(edited)) })
       : t("fromSheets", { n: items.length.toLocaleString(locale) });
     $("#list-title").textContent = query ? `“${query}”` : cat === "all" ? t("allProducts") : cat === "saved" ? t("saved") : t.cat(cat);
   }
@@ -799,7 +799,9 @@ async function shop(token) {
     $("#btn-share").setAttribute("aria-label", t("share"));
     $("#btn-search").setAttribute("aria-label", t("search"));
     $("#btn-settings").setAttribute("aria-label", t("settings"));
-    $("#foot-text").textContent = t("footer", { agent: agentName() }) + (info.umami ? " " + t("privacy") : "");
+    $("#foot-text").textContent = t("footer", { agent: agentName() });
+    // like flayfind's: the site sells nothing itself and its links carry a referral code
+    $("#foot-disclosure").textContent = agent.code ? t("disclosure", { shop: info.title, agent: agentName() }) : "";
 
     const offer = $("#offer");
     const sticky = $("#sticky-offer");
@@ -858,7 +860,7 @@ async function shop(token) {
   $("#title").textContent = title;
   startMast();
   $("#nav-title").textContent = title;
-  for (const img of [$("#hero-logo"), $("#nav-logo")]) {
+  for (const img of [$("#nav-logo"), $("#mast-logo")]) {
     img.src = info.logo || "/icon.svg";
     img.onerror = () => { img.onerror = null; img.src = "/icon.svg"; };
   }

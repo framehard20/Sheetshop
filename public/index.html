@@ -112,7 +112,7 @@
 
       <section class="b-card">
         <h1>Extra shop links</h1>
-        <p class="muted">A separate shop with its own sheets, name or code, on a long link of its own (the main site doesn't change). Links made before keep working.</p>
+        <p class="muted">A second shop on this same site, with its own sheets, name or code. It gets its own long address (this site + <b>?c=…</b>); the plain address keeps showing your main shop. Links made before keep working.</p>
         <form id="b-form" novalidate>
           <div class="fld">
             <span>Google Sheets</span>
@@ -171,14 +171,14 @@
     </header>
 
     <section class="hero" id="top">
-      <!-- title with a 3D sneaker on each side, the list line and the logo, all centred -->
+      <!-- title, the list line, then the logo between two 3D sneakers, all centred -->
       <div class="mast" id="mast">
         <div class="mast-shoe mast-shoe-l" aria-hidden="true"><canvas></canvas></div>
         <h1 id="title" class="mast-title"></h1>
         <p id="mast-sub" class="mast-sub"></p>
+        <img id="mast-logo" class="mast-logo" alt="" width="96" height="96">
         <div class="mast-shoe mast-shoe-r" aria-hidden="true"><canvas></canvas></div>
       </div>
-      <img id="hero-logo" class="hero-logo" alt="" width="76" height="76">
       <p id="subtitle" class="hero-sub"></p>
       <a id="offer" class="offer" target="_blank" rel="noopener sponsored" hidden>
         <span class="offer-badge" aria-hidden="true">$800</span>
@@ -212,7 +212,7 @@
       <div id="more" class="more" aria-hidden="true"></div>
     </main>
 
-    <footer class="foot"><p id="foot-text"></p></footer>
+    <footer class="foot"><p id="foot-text"></p><p id="foot-disclosure" class="foot-disc"></p></footer>
 
     <a id="sticky-offer" class="sticky-offer" target="_blank" rel="noopener sponsored" hidden>
       <span id="sticky-text"></span>

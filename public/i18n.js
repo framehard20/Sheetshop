@@ -7,6 +7,7 @@ export const LANGS = {
 
 const T = {
   en: {
+    disclosure: "{shop} doesn't sell anything: it links to {agent} and its sellers, who have their own terms and their own privacy policy. Links to {agent} carry our referral code, which gives you the discount when you sign up and may earn us a reward for recommending it.",
     mastSub: "The product list",
     search: "Search products", all: "All", saved: "Saved", products: "{n} products", product: "1 product",
     loading: "Loading…", stillLoading: "still loading", nothing: "Nothing matches “{q}”.",
@@ -18,7 +19,6 @@ const T = {
     offerShort: "Get $800 + 40% off shipping",
     codeBar: "New to {agent}? Sign up with code **{code}**.",
     footer: "Buy links go to {agent}. Prices come from the sheet and may have changed; shipping is not included.",
-    privacy: "Clicks on sign-up links are counted anonymously with Umami, without cookies.",
     settings: "Settings", language: "Language", currency: "Currency", appearance: "Appearance",
     introTitle: "Choose your language and currency", introText: "Prices will be shown in the currency you pick. You can change this later with 🌐.", accept: "Accept",
     light: "Light", dark: "Dark", auto: "Auto", share: "Share", copied: "Link copied", close: "Close",
@@ -45,6 +45,7 @@ const T = {
     },
   },
   es: {
+    disclosure: "{shop} no vende nada: enlaza a {agent} y a sus vendedores, que tienen sus propias condiciones y su propia política de privacidad. Los enlaces a {agent} llevan nuestro código de referido, que a ti te da el descuento al registrarte y a nosotros nos puede reportar un beneficio por recomendarlo.",
     mastSub: "Lista de productos",
     search: "Buscar productos", all: "Todo", saved: "Guardados", products: "{n} productos", product: "1 producto",
     loading: "Cargando…", stillLoading: "aún cargando", nothing: "Nada coincide con «{q}».",
@@ -56,7 +57,6 @@ const T = {
     offerShort: "800 $ + 40% en el envío",
     codeBar: "¿Nuevo en {agent}? Regístrate con el código **{code}**.",
     footer: "Los enlaces de compra van a {agent}. Los precios vienen de la hoja y pueden haber cambiado; el envío no está incluido.",
-    privacy: "Los clics en los enlaces de registro se cuentan de forma anónima con Umami, sin cookies.",
     settings: "Ajustes", language: "Idioma", currency: "Moneda", appearance: "Apariencia",
     introTitle: "Elige tu idioma y tu moneda", introText: "Los precios se mostrarán en la moneda que elijas. Puedes cambiarlo después con 🌐.", accept: "Aceptar",
     light: "Claro", dark: "Oscuro", auto: "Auto", share: "Compartir", copied: "Enlace copiado", close: "Cerrar",
@@ -83,6 +83,7 @@ const T = {
     },
   },
   fr: {
+    disclosure: "{shop} ne vend rien : le site renvoie vers {agent} et ses vendeurs, qui ont leurs propres conditions et leur propre politique de confidentialité. Les liens vers {agent} contiennent notre code de parrainage, qui vous donne la réduction à l’inscription et peut nous rapporter une récompense pour l’avoir recommandé.",
     mastSub: "La liste de produits",
     search: "Rechercher des produits", all: "Tout", saved: "Favoris", products: "{n} produits", product: "1 produit",
     loading: "Chargement…", stillLoading: "chargement en cours", nothing: "Aucun résultat pour « {q} ».",
@@ -94,7 +95,6 @@ const T = {
     offerShort: "800 $ + 40 % sur la livraison",
     codeBar: "Nouveau sur {agent} ? Inscrivez-vous avec le code **{code}**.",
     footer: "Les liens d’achat mènent à {agent}. Les prix viennent de la feuille et ont pu changer ; livraison non comprise.",
-    privacy: "Les clics sur les liens d’inscription sont comptés anonymement avec Umami, sans cookies.",
     settings: "Réglages", language: "Langue", currency: "Devise", appearance: "Apparence",
     introTitle: "Choisissez votre langue et votre devise", introText: "Les prix seront affichés dans la devise choisie. Vous pourrez la changer plus tard avec 🌐.", accept: "Accepter",
     light: "Clair", dark: "Sombre", auto: "Auto", share: "Partager", copied: "Lien copié", close: "Fermer",
@@ -121,6 +121,7 @@ const T = {
     },
   },
   de: {
+    disclosure: "{shop} verkauft nichts: Die Seite verlinkt auf {agent} und dessen Verkäufer, die eigene Bedingungen und eine eigene Datenschutzerklärung haben. Die Links zu {agent} enthalten unseren Empfehlungscode, der dir bei der Registrierung den Rabatt gibt und uns für die Empfehlung eine Vergütung einbringen kann.",
     mastSub: "Die Produktliste",
     search: "Produkte suchen", all: "Alle", saved: "Gemerkt", products: "{n} Produkte", product: "1 Produkt",
     loading: "Wird geladen…", stillLoading: "lädt noch", nothing: "Keine Treffer für „{q}“.",
@@ -132,7 +133,6 @@ const T = {
     offerShort: "800 $ + 40 % auf den Versand",
     codeBar: "Neu bei {agent}? Registriere dich mit dem Code **{code}**.",
     footer: "Die Kauflinks führen zu {agent}. Die Preise stammen aus der Tabelle und können sich geändert haben; Versand nicht inbegriffen.",
-    privacy: "Klicks auf Registrierungslinks werden anonym mit Umami gezählt, ohne Cookies.",
     settings: "Einstellungen", language: "Sprache", currency: "Währung", appearance: "Darstellung",
     introTitle: "Wähle Sprache und Währung", introText: "Die Preise werden in der gewählten Währung angezeigt. Du kannst das später über 🌐 ändern.", accept: "Übernehmen",
     light: "Hell", dark: "Dunkel", auto: "Auto", share: "Teilen", copied: "Link kopiert", close: "Schließen",
@@ -159,6 +159,7 @@ const T = {
     },
   },
   it: {
+    disclosure: "{shop} non vende nulla: rimanda a {agent} e ai suoi venditori, che hanno condizioni e informative sulla privacy proprie. I link a {agent} contengono il nostro codice di invito, che a te dà lo sconto alla registrazione e a noi può far ottenere un compenso per averlo consigliato.",
     mastSub: "La lista dei prodotti",
     search: "Cerca prodotti", all: "Tutto", saved: "Salvati", products: "{n} prodotti", product: "1 prodotto",
     loading: "Caricamento…", stillLoading: "ancora in caricamento", nothing: "Nessun risultato per «{q}».",
@@ -170,7 +171,6 @@ const T = {
     offerShort: "800 $ + 40% sulla spedizione",
     codeBar: "Nuovo su {agent}? Registrati con il codice **{code}**.",
     footer: "I link d’acquisto portano a {agent}. I prezzi vengono dal foglio e potrebbero essere cambiati; spedizione esclusa.",
-    privacy: "I clic sui link di registrazione vengono contati in forma anonima con Umami, senza cookie.",
     settings: "Impostazioni", language: "Lingua", currency: "Valuta", appearance: "Aspetto",
     introTitle: "Scegli lingua e valuta", introText: "I prezzi verranno mostrati nella valuta scelta. Puoi cambiarla in seguito con 🌐.", accept: "Accetta",
     light: "Chiaro", dark: "Scuro", auto: "Auto", share: "Condividi", copied: "Link copiato", close: "Chiudi",
@@ -197,6 +197,7 @@ const T = {
     },
   },
   pt: {
+    disclosure: "{shop} não vende nada: liga para a {agent} e para os seus vendedores, que têm as suas próprias condições e a sua própria política de privacidade. Os links para a {agent} levam o nosso código de referência, que te dá o desconto ao registares-te e nos pode render uma comissão por o recomendarmos.",
     mastSub: "Lista de produtos",
     search: "Procurar produtos", all: "Tudo", saved: "Guardados", products: "{n} produtos", product: "1 produto",
     loading: "A carregar…", stillLoading: "ainda a carregar", nothing: "Nada corresponde a “{q}”.",
@@ -208,7 +209,6 @@ const T = {
     offerShort: "800 $ + 40% no envio",
     codeBar: "Novo na {agent}? Regista-te com o código **{code}**.",
     footer: "Os links de compra vão para a {agent}. Os preços vêm da folha e podem ter mudado; envio não incluído.",
-    privacy: "Os cliques nos links de registo são contados de forma anónima com o Umami, sem cookies.",
     settings: "Definições", language: "Idioma", currency: "Moeda", appearance: "Aspeto",
     introTitle: "Escolhe o idioma e a moeda", introText: "Os preços serão mostrados na moeda que escolheres. Podes mudar depois em 🌐.", accept: "Aceitar",
     light: "Claro", dark: "Escuro", auto: "Auto", share: "Partilhar", copied: "Link copiado", close: "Fechar",
@@ -235,6 +235,7 @@ const T = {
     },
   },
   zh: {
+    disclosure: "{shop} 不出售任何商品：本站链接到 {agent} 及其卖家，他们有各自的条款和隐私政策。指向 {agent} 的链接带有我们的推荐码，你注册时可获得优惠，我们也可能因推荐而获得奖励。",
     mastSub: "产品清单",
     search: "搜索商品", all: "全部", saved: "收藏", products: "{n} 件商品", product: "1 件商品",
     loading: "加载中…", stillLoading: "仍在加载", nothing: "没有与“{q}”匹配的商品。",
@@ -246,7 +247,6 @@ const T = {
     offerShort: "800 $ + 运费 6 折",
     codeBar: "第一次用 {agent}？注册时填写邀请码 **{code}**。",
     footer: "购买链接会打开 {agent}。价格来自表格，可能已变动；不含运费。",
-    privacy: "注册链接的点击通过 Umami 匿名统计，不使用 Cookie。",
     settings: "设置", language: "语言", currency: "货币", appearance: "外观",
     introTitle: "选择语言和货币", introText: "价格将以你选择的货币显示，之后可以通过 🌐 更改。", accept: "确定",
     light: "浅色", dark: "深色", auto: "自动", share: "分享", copied: "链接已复制", close: "关闭",

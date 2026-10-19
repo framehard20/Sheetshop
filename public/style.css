@@ -522,13 +522,30 @@ input[type="text"], input[type="url"], input[type="password"], input[type="searc
 
 /* ---------------------------------------------------------------- big title with 3D sneakers */
 .hero { padding-top: 26px; }
-.mast { --t: 120px; position: relative; display: inline-flex; flex-direction: column; align-items: center; padding: 0 calc(var(--t) * 1.2); font-size: var(--t); }
-.hero .mast-title { margin: 0; font: 400 1em/.92 "Anton", "Archivo", Impact, system-ui, sans-serif; letter-spacing: .005em; text-transform: uppercase; white-space: nowrap; color: var(--ink); }
+.hero .mast-title { margin: 0; font: 400 1em/.92 "Anton", "Archivo", Impact, system-ui, sans-serif; letter-spacing: .005em; text-transform: uppercase; white-space: nowrap; color: #2f66f0; /* flayfind blue, both themes */ }
 .mast-sub { margin: .04em 0 0; font: 400 .4em/1 "Anton", "Archivo", Impact, system-ui, sans-serif; letter-spacing: .02em; text-transform: uppercase; color: var(--ink); white-space: nowrap; }
-/* the sneakers sit on the title's edges, like the mock-up: big, overlapping a little */
-.mast-shoe { position: absolute; top: 62%; width: 2em; height: 1.55em; transform: translateY(-50%); pointer-events: none; }
-.mast-shoe-l { left: 0; }
-.mast-shoe-r { right: 0; }
 .mast-shoe canvas { width: 100%; height: 100%; display: block; opacity: 0; }
 .mast-shoe canvas.ready { opacity: 1; }
-.hero .hero-logo { width: 76px; height: 76px; margin: 14px auto 0; }
+.hero-sub { margin-top: 18px; }
+
+/* line between the offer bar and the top bar, in the opposite colour of the
+   page (white on dark, black on light) */
+.topbar { border-bottom: 1px solid var(--ink); }
+
+.foot-disc { max-width: 72ch; margin: 10px auto 0; line-height: 1.55; }
+/* outline around the title's letters, in the page's opposite colour (black on
+   light, white on dark); drawn behind the fill so the letters keep their weight */
+.hero .mast-title { -webkit-text-stroke: max(2px, .035em) var(--ink); paint-order: stroke fill; }
+
+/* Title, "the product list" under it, then a row with the logo between two
+   big 3D sneakers. Nothing overlaps the letters. */
+.mast {
+  --t: 120px; font-size: var(--t);
+  display: inline-grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center;
+}
+.mast-title { grid-column: 1 / -1; grid-row: 1; justify-self: center; }
+.mast-sub { grid-column: 1 / -1; grid-row: 2; justify-self: center; }
+.mast-shoe { position: relative; grid-row: 3; width: 100%; max-width: 2.3em; aspect-ratio: 4 / 3; margin-top: .12em; pointer-events: none; }
+.mast-shoe-l { grid-column: 1; justify-self: end; }
+.mast-shoe-r { grid-column: 3; justify-self: start; }
+.mast-logo { grid-column: 2; grid-row: 3; width: clamp(64px, .62em, 96px); height: clamp(64px, .62em, 96px); margin: .12em .1em 0; border-radius: 22%; object-fit: cover; box-shadow: 0 10px 24px -12px rgb(10 10 10 / .5); }
