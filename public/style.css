@@ -526,7 +526,7 @@ input[type="text"], input[type="url"], input[type="password"], input[type="searc
 .mast-sub { margin: .04em 0 0; font: 400 .4em/1 "Anton", "Archivo", Impact, system-ui, sans-serif; letter-spacing: .02em; text-transform: uppercase; color: var(--ink); white-space: nowrap; }
 .mast-shoe canvas { width: 100%; height: 100%; display: block; opacity: 0; }
 .mast-shoe canvas.ready { opacity: 1; }
-.hero-sub { margin-top: 18px; }
+.hero-sub { margin-top: 6px; }
 
 /* line between the offer bar and the top bar, in the opposite colour of the
    page (white on dark, black on light) */
@@ -545,7 +545,7 @@ input[type="text"], input[type="url"], input[type="password"], input[type="searc
 }
 .mast-title { grid-column: 1 / -1; grid-row: 1; justify-self: center; }
 .mast-sub { grid-column: 1 / -1; grid-row: 2; justify-self: center; }
-.mast-shoe { position: relative; grid-row: 3; width: 100%; max-width: 2.3em; aspect-ratio: 4 / 3; margin-top: .12em; pointer-events: none; }
+.mast-shoe { position: relative; grid-row: 3; width: 100%; max-width: 2.05em; aspect-ratio: 1.9 / 1; margin-top: .03em; pointer-events: none; }
 .mast-shoe-l { grid-column: 1; justify-self: end; }
 .mast-shoe-r { grid-column: 3; justify-self: start; }
-.mast-logo { grid-column: 2; grid-row: 3; width: clamp(64px, .62em, 96px); height: clamp(64px, .62em, 96px); margin: .12em .1em 0; border-radius: 22%; object-fit: cover; box-shadow: 0 10px 24px -12px rgb(10 10 10 / .5); }
+.mast-logo { grid-column: 2; grid-row: 3; width: clamp(64px, .62em, 96px); height: clamp(64px, .62em, 96px); margin: .03em .1em 0; border-radius: 22%; object-fit: cover; box-shadow: 0 10px 24px -12px rgb(10 10 10 / .5); }
