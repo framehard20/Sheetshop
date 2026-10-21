@@ -275,6 +275,13 @@ input[type="text"], input[type="url"], input[type="password"], input[type="searc
 
 /* ---------------------------------------------------------------- category tiles */
 .tiles-wrap { max-width: 1280px; margin: 0 auto; padding: 30px 0 4px; }
+/* "Most popular": one row that scrolls sideways, cards as in the grid */
+.pop-wrap { max-width: 1280px; margin: 0 auto; padding: 30px 0 4px; }
+.pop-wrap .sec-title { margin-bottom: 6px; }
+.pop-sub { margin: 0 0 14px; padding: 0 16px; color: var(--grey-2); font-size: 14px; }
+.pop-row { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(150px, 44%); gap: 12px; overflow-x: auto; padding: 2px 16px 10px; scroll-snap-type: x mandatory; scroll-padding: 0 16px; scrollbar-width: thin; }
+.pop-row > .card { scroll-snap-align: start; }
+@media (min-width: 640px) { .pop-row { grid-auto-columns: 210px; gap: 16px; } }
 .sec-title { font: 900 clamp(20px, 3vw, 28px)/1 var(--display); text-transform: uppercase; letter-spacing: -.02em; margin: 0 0 16px; padding: 0 16px; }
 .wrap .sec-title { padding: 0; }
 .tiles { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x proximity; scroll-padding-inline: 16px; padding: 2px 16px 18px; scrollbar-width: none; }

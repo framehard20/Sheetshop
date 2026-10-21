@@ -7,6 +7,7 @@ export const LANGS = {
 
 const T = {
   en: {
+    popTitle: "Most popular", popSub: "What shoppers here tap Buy on most, plus everyday budget picks.", popSubAll: "Ranked by what shoppers here tap Buy on most.",
     disclosure: "{shop} doesn't sell anything: it links to {agent} and its sellers, who have their own terms and their own privacy policy. Links to {agent} carry our referral code, which gives you the discount when you sign up and may earn us a reward for recommending it.",
     mastSub: "The product list",
     search: "Search products", all: "All", saved: "Saved", products: "{n} products", product: "1 product",
@@ -45,6 +46,7 @@ const T = {
     },
   },
   es: {
+    popTitle: "Lo más popular", popSub: "Lo que más compra la gente aquí, más básicos baratos del día a día.", popSubAll: "Ordenado por lo que más compra la gente aquí.",
     disclosure: "{shop} no vende nada: enlaza a {agent} y a sus vendedores, que tienen sus propias condiciones y su propia política de privacidad. Los enlaces a {agent} llevan nuestro código de referido, que a ti te da el descuento al registrarte y a nosotros nos puede reportar un beneficio por recomendarlo.",
     mastSub: "Lista de productos",
     search: "Buscar productos", all: "Todo", saved: "Guardados", products: "{n} productos", product: "1 producto",
@@ -83,6 +85,7 @@ const T = {
     },
   },
   fr: {
+    popTitle: "Les plus populaires", popSub: "Ce que les visiteurs achètent le plus ici, plus des basiques pas chers.", popSubAll: "Classé selon ce que les visiteurs achètent le plus ici.",
     disclosure: "{shop} ne vend rien : le site renvoie vers {agent} et ses vendeurs, qui ont leurs propres conditions et leur propre politique de confidentialité. Les liens vers {agent} contiennent notre code de parrainage, qui vous donne la réduction à l’inscription et peut nous rapporter une récompense pour l’avoir recommandé.",
     mastSub: "La liste de produits",
     search: "Rechercher des produits", all: "Tout", saved: "Favoris", products: "{n} produits", product: "1 produit",
@@ -121,6 +124,7 @@ const T = {
     },
   },
   de: {
+    popTitle: "Am beliebtesten", popSub: "Was Besucher hier am meisten kaufen, plus günstige Alltags-Basics.", popSubAll: "Sortiert danach, was Besucher hier am meisten kaufen.",
     disclosure: "{shop} verkauft nichts: Die Seite verlinkt auf {agent} und dessen Verkäufer, die eigene Bedingungen und eine eigene Datenschutzerklärung haben. Die Links zu {agent} enthalten unseren Empfehlungscode, der dir bei der Registrierung den Rabatt gibt und uns für die Empfehlung eine Vergütung einbringen kann.",
     mastSub: "Die Produktliste",
     search: "Produkte suchen", all: "Alle", saved: "Gemerkt", products: "{n} Produkte", product: "1 Produkt",
@@ -159,6 +163,7 @@ const T = {
     },
   },
   it: {
+    popTitle: "I più popolari", popSub: "Ciò che i visitatori comprano di più qui, più basic economici di tutti i giorni.", popSubAll: "In ordine di ciò che i visitatori comprano di più qui.",
     disclosure: "{shop} non vende nulla: rimanda a {agent} e ai suoi venditori, che hanno condizioni e informative sulla privacy proprie. I link a {agent} contengono il nostro codice di invito, che a te dà lo sconto alla registrazione e a noi può far ottenere un compenso per averlo consigliato.",
     mastSub: "La lista dei prodotti",
     search: "Cerca prodotti", all: "Tutto", saved: "Salvati", products: "{n} prodotti", product: "1 prodotto",
@@ -197,6 +202,7 @@ const T = {
     },
   },
   pt: {
+    popTitle: "Os mais populares", popSub: "O que as pessoas mais compram aqui, mais básicos baratos do dia a dia.", popSubAll: "Ordenado pelo que as pessoas mais compram aqui.",
     disclosure: "{shop} não vende nada: liga para a {agent} e para os seus vendedores, que têm as suas próprias condições e a sua própria política de privacidade. Os links para a {agent} levam o nosso código de referência, que te dá o desconto ao registares-te e nos pode render uma comissão por o recomendarmos.",
     mastSub: "Lista de produtos",
     search: "Procurar produtos", all: "Tudo", saved: "Guardados", products: "{n} produtos", product: "1 produto",
@@ -235,6 +241,7 @@ const T = {
     },
   },
   zh: {
+    popTitle: "最受欢迎", popSub: "这里最多人点击购买的商品，以及实惠的日常必备。", popSubAll: "按这里最多人点击购买的商品排序。",
     disclosure: "{shop} 不出售任何商品：本站链接到 {agent} 及其卖家，他们有各自的条款和隐私政策。指向 {agent} 的链接带有我们的推荐码，你注册时可获得优惠，我们也可能因推荐而获得奖励。",
     mastSub: "产品清单",
     search: "搜索商品", all: "全部", saved: "收藏", products: "{n} 件商品", product: "1 件商品",

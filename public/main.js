@@ -1,5 +1,5 @@
 import { AGENTS, agentById, buildLink } from "./agents.js";
-import { CATEGORY_ORDER, categorize, brandOf, indexText, makeQuery } from "./catalog.js";
+import { norm, CATEGORY_ORDER, categorize, brandOf, indexText, makeQuery } from "./catalog.js";
 import { LANGS, CURRENCIES, translator, pickLang, pickCurrency, catNames, localeFor } from "./i18n.js";
 import { startTracking, track } from "./track.js";
 
@@ -408,6 +408,9 @@ async function shop(token) {
   let shownKeys = [];
   const STEP = 40;
   let loadingLeft = 0;
+  // Buy taps per product, for "Most popular"
+  let popCounts = {};
+  api("popular").then((r) => { popCounts = r.counts || {}; paintPopular(); }).catch(() => {});
 
   // ---- prices
   const usd = (p) => (p.p ? p.p.a / (rates[p.p.c] || ({ CNY: 6.7, EUR: 0.89, GBP: 0.75 }[p.p.c] || 1)) : null);
@@ -607,6 +610,7 @@ async function shop(token) {
   });
   // Buy: the sign-up step comes first, the first time in each page load
   $("#pm-buy").addEventListener("click", (e) => {
+    if (pmProduct && (e.metaKey || e.ctrlKey || e.shiftKey)) countTap(pmProduct);
     if (e.metaKey || e.ctrlKey || e.shiftKey || !pmProduct) return;
     e.preventDefault();
     buy(pmProduct);
@@ -655,6 +659,8 @@ async function shop(token) {
       for (const b of $("#tiles").children) b.querySelector("small").textContent = t("items", { n: counts.get(b.dataset.cat).toLocaleString(locale) });
     }
 
+    paintPopular();
+
     // brands present in this category
     const brands = new Map();
     for (const p of base()) if (p.brand) brands.set(p.brand, (brands.get(p.brand) || 0) + 1);
@@ -665,6 +671,54 @@ async function shop(token) {
       ...opts.map(([b, n]) => el("option", { value: b, textContent: n ? `${b} (${n})` : b })));
     sel.value = brand;
     sel.hidden = !opts.length;
+  }
+
+  // ---- "Most popular": what people tap Buy on most, from every sheet. While
+  // there are few taps, the free places go to everyday budget picks, one kind
+  // at a time; they give way as real taps come in.
+  const POP_N = 12;
+  const EVERYDAY = [
+    { re: /\b(airpods?|earbuds?|earphones?|headphones?|buds)\b/, cap: 45 },
+    { re: /\bsocks?\b/, cap: 15 },
+    { cat: "shoes", cap: 45 },
+    { cat: "tshirts", cap: 20 },
+    { cat: "hoodies", cap: 30 },
+    { cat: "hats", cap: 15 },
+    { cat: "shorts", cap: 20 },
+    { cat: "accessories", cap: 15 },
+  ];
+  // jewellery and cases that mention earbuds are not earbuds
+  const NOT_EVERYDAY = /\b(necklace|chain|ring|bracelet|case|cover|strap|keychain)\b/;
+  function popularPicks() {
+    const out = items.filter((p) => popCounts[p.key] > 0)
+      .sort((a, b) => popCounts[b.key] - popCounts[a.key] || a.order - b.order)
+      .slice(0, POP_N);
+    const clicked = out.length;
+    const seen = new Set(out.map((p) => p.key));
+    const pools = EVERYDAY.map((g) => items.filter((p) => !seen.has(p.key) && (p.ik || p.img) && usd(p) != null && usd(p) <= g.cap
+      && !NOT_EVERYDAY.test(norm(p.name)) && (g.re ? g.re.test(norm(p.name)) : p.cat === g.cat)));
+    for (let round = 0; out.length < POP_N && pools.some((pool) => pool.length > round); round++) {
+      for (const pool of pools) {
+        const p = pool[round];
+        if (p && !seen.has(p.key) && out.length < POP_N) { out.push(p); seen.add(p.key); }
+      }
+    }
+    return { list: out, clicked };
+  }
+  function paintPopular() {
+    const wrap = $("#pop-wrap");
+    // only on the home view, and once every sheet is in, so the row doesn't jump
+    const show = cat === "all" && !query && !brand && loadingLeft === 0 && items.length > 0;
+    if (!show) { wrap.hidden = true; return; }
+    const { list: picks, clicked } = popularPicks();
+    wrap.hidden = picks.length < 4;
+    if (wrap.hidden) return;
+    $("#pop-title").textContent = t("popTitle");
+    $("#pop-sub").textContent = t(clicked >= picks.length ? "popSubAll" : "popSub");
+    const sig = lang + currency + agent.id + "|" + picks.map((p) => p.key).join(",");
+    if (sig === paintPopular.sig) return;
+    paintPopular.sig = sig;
+    $("#pop").replaceChildren(...picks.map(card));
   }
 
   function setCat(id) {
@@ -744,7 +798,14 @@ async function shop(token) {
   const gate = $("#gate");
   let gateShown = false;
   let gateProduct = null;
+  const tapped = new Set();
+  function countTap(p) {
+    if (tapped.has(p.key)) return;
+    tapped.add(p.key);
+    fetch("/api/click", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ k: p.key }), keepalive: true }).catch(() => {});
+  }
   function buy(p) {
+    countTap(p);
     // once per page load, on the first product tapped; a reload starts over
     if (offerOn() && !gateShown) { gateShown = true; return openGate(p); }
     window.open(linkFor(p), "_blank", "noopener");
@@ -935,7 +996,7 @@ async function shop(token) {
     t = translator(lang); locale = localeFor(lang);
     onLocale();
   };
-  curSel.onchange = () => { currency = curSel.value; store.set("currency", currency); paintTexts(); render(true); };
+  curSel.onchange = () => { currency = curSel.value; store.set("currency", currency); paintTexts(); paintPopular(); render(true); };
   $("#theme-seg").onclick = (e) => { const b = e.target.closest("button"); if (b) { applyTheme(b.dataset.theme); paintSeg(); } };
 
   $("#q").value = query;
