@@ -123,7 +123,15 @@ export function parseLink(raw, depth = 0) {
   if (hashQuery) params.push(...new URLSearchParams(hashQuery).values());
   for (const v of params) {
     if (/^https?:|%3A%2F%2F/i.test(v)) {
-      const inner = parseLink(/%3A/i.test(v) ? decodeURIComponent(v) : v, depth + 1);
+      // a badly encoded link in a sheet must not take the whole tab down
+      let decoded = v;
+      if (/%3A/i.test(v)) {
+        try { decoded = decodeURIComponent(v); } catch {
+          // decode what can be decoded and keep the broken bits as they are
+          decoded = v.replace(/%[0-9a-f]{2}/gi, (m) => { try { return decodeURIComponent(m); } catch { return m; } });
+        }
+      }
+      const inner = parseLink(decoded, depth + 1);
       if (inner) return inner;
     }
   }
