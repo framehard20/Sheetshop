@@ -98,7 +98,7 @@
             <span>Google Sheets</span>
             <div id="s-sheets"></div>
             <button type="button" id="s-add-sheet" class="link-btn">+ Add another sheet</button>
-            <small class="muted">Each sheet must be shared as <b>Anyone with the link → Viewer</b>. Up to 10; their products are merged and sorted into categories.</small>
+            <small class="muted">Each sheet must be shared as <b>Anyone with the link → Viewer</b>. Up to 10; their products are merged and sorted into categories. <b>The order is the priority:</b> the first sheet (★) goes first everywhere, "Most popular" included; move them with ↑ ↓ and press Save.</small>
           </div>
           <div class="fld">
             <span>Agent and invite code</span>
@@ -108,6 +108,12 @@
           <button class="btn primary big" id="s-save" type="submit">Save and publish</button>
           <p id="s-msg" class="msg" role="status"></p>
         </form>
+        <div class="fld ai-sort">
+          <span>Products without a clear category</span>
+          <small class="muted">Claude looks at their picture and puts them in the right category, once each (a few cents in all). It also runs by itself after Save, so new sheets are sorted too.</small>
+          <button type="button" id="ai-go" class="btn">Sort them with Claude</button>
+          <p id="ai-msg" class="msg" role="status"></p>
+        </div>
       </section>
 
       <section class="b-card">

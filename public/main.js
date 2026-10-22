@@ -89,9 +89,27 @@ function rowList(box, make) {
     box.append(row);
   };
 }
+// The order of the sheets is their priority: the first one's products come
+// first everywhere (the list, the categories and "Most popular"), then the
+// second's, and so on. ↑ / ↓ move a sheet; the first one carries a badge.
 function sheetRows(box) {
-  return rowList(box, (v = "") => el("div", { className: "row-2" },
-    el("input", { type: "url", inputMode: "url", autocomplete: "off", value: v, placeholder: "https://docs.google.com/spreadsheets/d/…", "aria-label": "Google Sheet link" })));
+  const paint = () => [...box.children].forEach((row, i) => {
+    row.querySelector(".prio").textContent = i === 0 ? "★ Priority" : `${i + 1}`;
+    row.querySelector(".mv-up").disabled = i === 0;
+    row.querySelector(".mv-down").disabled = i === box.children.length - 1;
+  });
+  new MutationObserver(paint).observe(box, { childList: true });
+  return rowList(box, (v = "") => {
+    const up = el("button", { type: "button", className: "row-mv mv-up", textContent: "↑", title: "Higher priority" });
+    const down = el("button", { type: "button", className: "row-mv mv-down", textContent: "↓", title: "Lower priority" });
+    const row = el("div", { className: "row-2 sheet-row" },
+      el("span", { className: "prio" }),
+      el("input", { type: "url", inputMode: "url", autocomplete: "off", value: v, placeholder: "https://docs.google.com/spreadsheets/d/…", "aria-label": "Google Sheet link" }),
+      up, down);
+    up.onclick = () => { if (row.previousElementSibling) box.insertBefore(row, row.previousElementSibling); };
+    down.onclick = () => { if (row.nextElementSibling) box.insertBefore(row.nextElementSibling, row); };
+    return row;
+  });
 }
 function agentRows(box) {
   return rowList(box, (a = {}) => {
@@ -217,12 +235,39 @@ async function adminPage() {
         title: $("#s-title").value.trim(), logo: $("#s-logo").value.trim(),
       });
       say($("#s-msg"), `Saved ✓ “${r.title}”: ${r.sheets} sheet${r.sheets === 1 ? "" : "s"}, ${r.tabs} tab${r.tabs === 1 ? "" : "s"}. Visitors see it within about a minute.`);
+      sortWithAi();
     } catch (err) {
       say($("#s-msg"), err.message, true);
     } finally {
       $("#s-save").disabled = false;
     }
   };
+
+  // ---- products the rules can't place: Claude looks at their pictures (once each)
+  async function sortWithAi() {
+    const box = $("#ai-msg"), go = $("#ai-go");
+    go.disabled = true;
+    try {
+      let left = (await api("admin", null, { action: "aicats-count" })).left;
+      let done = 0;
+      while (left > 0) {
+        say(box, `Claude is sorting ${left} product${left === 1 ? "" : "s"} without a clear category… (${done} done)`);
+        const r = await api("admin", null, { action: "aicats" });
+        done += r.done;
+        if (!r.done) break;
+        left = r.left;
+      }
+      say(box, done ? `Done ✓ ${done} product${done === 1 ? "" : "s"} sorted by Claude. Visitors see them within about 10 minutes.` : "Nothing to sort: every product has a category.");
+    } catch (err) {
+      say(box, err.message, true);
+    } finally {
+      go.disabled = false;
+    }
+  }
+  $("#ai-go").onclick = sortWithAi;
+  api("admin", null, { action: "aicats-count" }).then((r) => {
+    say($("#ai-msg"), !r.ai ? "Claude's key is missing: add ANTHROPIC_API_KEY to this project in Vercel." : r.left ? `${r.left} product${r.left === 1 ? "" : "s"} without a clear category.` : "Every product has a category.");
+  }).catch(() => {});
 
   // ---- extra shop links (signed, on their own long link)
   const saved = store.get("builder") || {};
@@ -408,6 +453,14 @@ async function shop(token) {
   let shownKeys = [];
   const STEP = 40;
   let loadingLeft = 0;
+  // categories Claude chose for products the rules couldn't place
+  let aiCats = {};
+  api("cats").then((r) => {
+    aiCats = r.cats || {};
+    let changed = false;
+    for (const p of byKey.values()) if (p.cat === "other" && aiCats[p.key]) { p.cat = aiCats[p.key]; changed = true; }
+    if (changed) soon();
+  }).catch(() => {});
   // Buy taps per product, for "Most popular"
   let popCounts = {};
   api("popular").then((r) => { popCounts = r.counts || {}; paintPopular(); }).catch(() => {});
@@ -449,11 +502,12 @@ async function shop(token) {
       const order = task.order * 1e6 + page * 1e3 + r;
       const old = into.get(key);
       if (old && old.order <= order) {
-        if (!old.ik && raw.ik) Object.assign(old, { img: raw.img, ik: raw.ik, gal: raw.gal, sheet: task.sheet, gid: task.gid });
+        if (!old.ik && raw.ik) Object.assign(old, { img: raw.img, ik: raw.ik, gal: raw.gal, sh: task.sh, sheet: task.sheet, gid: task.gid });
         return;
       }
-      const p = { ...raw, key, order, sheet: task.sheet, gid: task.gid, tab: task.name };
+      const p = { ...raw, key, order, sh: task.sh, sheet: task.sheet, gid: task.gid, tab: task.name };
       p.cat = categorize(p, task.name);
+      if (p.cat === "other" && aiCats[key]) p.cat = aiCats[key];
       p.brand = brandOf(p.name);
       p.ix = indexText(p, catNames(p.cat));
       into.set(key, p);
@@ -691,7 +745,7 @@ async function shop(token) {
   const NOT_EVERYDAY = /\b(necklace|chain|ring|bracelet|case|cover|strap|keychain)\b/;
   function popularPicks() {
     const out = items.filter((p) => popCounts[p.key] > 0)
-      .sort((a, b) => popCounts[b.key] - popCounts[a.key] || a.order - b.order)
+      .sort((a, b) => a.sh - b.sh || popCounts[b.key] - popCounts[a.key] || a.order - b.order)
       .slice(0, POP_N);
     const clicked = out.length;
     const seen = new Set(out.map((p) => p.key));

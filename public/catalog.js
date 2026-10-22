@@ -18,7 +18,7 @@ const RULES = [
   ["bags", /\b(bags?|backpacks?|totes?|purses?|handbags?|duffel|duffle|crossbody|messenger|luggage|suitcases?|pouch|clutch|bolsos?|mochilas?|fanny ?packs?|waist ?bags?|sacoche|keepall|neverfull)\b/],
   ["hats", /\b(hats?|caps?|beanies?|bucket|balaclavas?|visors?|gorras?|snapbacks?|trucker)\b/],
   ["accessories", /\b(belts?|wallets?|card ?holders?|sunglasses|glasses|eyewear|scarf|scarves|gloves?|socks?|ties?|keychains?|key ?chains?|lanyards?|umbrellas?|underwear|boxers?|briefs|bras?|headbands?|towels?|masks?|cinturon\w*|gafas|calcetines|accessor\w*)\b/],
-  ["home", /\b(lego|legos|figures?|figurines?|posters?|lamps?|rugs?|carpets?|blankets?|pillows?|cushions?|decor|room|mugs?|cups?|bottles?|candles?|plush|toys?|bearbrick|kaws)\b/],
+  ["home", /\b(lego|legos|figures?|figurines?|posters?|stickers?|lamps?|rugs?|carpets?|blankets?|pillows?|cushions?|decor|room|mugs?|(?<!world )cups?|bottles?|candles?|plush|toys?|bearbrick|kaws)\b/],
   ["sets", /\b(tracksuits?|track ?suits?|sets?|suits?|co ord|two piece|2 piece|conjuntos?|chandal|ensemble)\b/],
   ["hoodies", /\b(hoodies?|hoody|hooded|sweatshirts?|crewnecks?|crew neck|zip ?ups?|pullovers?|sudaderas?|half ?zip|quarter ?zip)\b/],
   ["jackets", /\b(jackets?|coats?|puffers?|down jacket|parkas?|windbreakers?|(?:puffer|down|padded|quilted|fleece|bubble) vests?|gilets?|bombers?|varsity|blazers?|anoraks?|chaquetas?|abrigos?|plumifero|doudoune|veste|jacke)\b/],
@@ -36,8 +36,21 @@ export const CATEGORY_ORDER = [
   "jerseys", "bags", "hats", "accessories", "jewelry", "perfume", "electronics", "home", "other",
 ];
 
+// ---- football ------------------------------------------------------------
+// Team shirts rarely say "jersey": they read "2026 FIFA World Cup Argentina home
+// Fan version" or "25/26 season Real Madrid away". A football marker, or a team
+// with home / away / retro / a season, makes it a jersey, unless the name says
+// it's another garment (team shorts, jackets and hoodies keep their category)
+// or a souvenir.
+const FOOTBALL = /\b(fan version|fans? edition|player version|player edition|thai version|world cup|fifa|goalkeeper|football shirts?|soccer|maillot|retro shirts?|jerseys?|kits?)\b/;
+const TEAMS = /\b(real madrid|barcelona|barca|atletico|sevilla|betis|valencia|athletic|villarreal|milan|inter|juventus|napoli|roma|lazio|psg|paris saint germain|marseille|lyon|bayern|dortmund|leverkusen|arsenal|chelsea|liverpool|manchester|man utd|man city|tottenham|newcastle|aston villa|ajax|psv|feyenoord|benfica|porto|sporting|celtic|rangers|galatasaray|fenerbahce|boca|river plate|flamengo|santos|palmeiras|corinthians|al nassr|al hilal|al ittihad|inter miami|la galaxy|argentina|brazil|brasil|france|french|germany|german|spain|spanish|espana|italy|italian|portugal|portuguese|england|english|mexico|mexican|japan|japanese|korea|morocco|netherlands|holland|dutch|croatia|belgium|colombia|colombian|uruguay|chile|peru|ecuador|usa|canada|nigeria|senegal|ghana|cameroon|scotland|wales|ireland|norway|sweden|denmark|switzerland|austria|poland|turkey|national team)\b/;
+const TEAM_KIT = /\b(home|away|third|retro|vintage|anniversary|commemorative|special edition|training|season|\d{4}|\d{2} ?\d{2})\b/;
+const NOT_SHIRT = /\b(shorts|jackets?|windbreakers?|coats?|trench|parkas?|hoodies?|hooded|sweatshirts?|socks?|scarf|scarves|caps?|hats?|beanies?|stickers?|posters?|balls?|boots?|cleats|bags?|backpacks?|keychains?|figures?)\b/;
+const isFootballShirt = (t) => !NOT_SHIRT.test(t) && (FOOTBALL.test(t) || (TEAMS.test(t) && TEAM_KIT.test(t)));
+
 function ruleFor(text) {
   const t = " " + norm(text) + " ";
+  if (isFootballShirt(t)) return "jerseys";
   for (const [cat, re] of RULES) if (re.test(t)) return cat;
   return null;
 }

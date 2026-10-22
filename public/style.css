@@ -212,6 +212,12 @@ input[type="text"], input[type="url"], input[type="password"], input[type="searc
 .fld { display: grid; gap: 8px; margin: 22px 0; }
 .fld > span { font: 700 14px "Archivo", sans-serif; }
 .row-2 { display: grid; grid-template-columns: 1fr auto; gap: 8px; margin-bottom: 8px; }
+.sheet-row { grid-template-columns: auto 1fr auto auto auto; align-items: center; }
+.sheet-row .prio { width: 74px; font: 800 12px/1 var(--text); color: var(--grey-2); text-align: left; white-space: nowrap; }
+.sheet-row:first-child .prio { color: var(--accent); }
+.row-mv { width: 40px; min-height: 48px; border: 1px solid var(--line); border-radius: 12px; background: var(--card); color: var(--ink); cursor: pointer; font-size: 16px; }
+.row-mv:disabled { opacity: .35; cursor: default; }
+@media (max-width: 520px) { .sheet-row { grid-template-columns: auto 1fr auto auto; } .sheet-row input { grid-column: 1 / -1; grid-row: 1; } }
 .agent-row { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; margin-bottom: 8px; }
 .row-x { width: 48px; min-height: 48px; border: 1px solid var(--line); border-radius: 12px; background: var(--card); cursor: pointer; }
 .msg { min-height: 1.4em; margin: 12px 0 0; }
