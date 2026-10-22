@@ -47,6 +47,18 @@
     {
       "source": "/admin",
       "destination": "/index.html"
+    },
+    {
+      "source": "/aviso-legal",
+      "destination": "/api/legal?p=aviso-legal"
+    },
+    {
+      "source": "/terminos",
+      "destination": "/api/legal?p=terminos"
+    },
+    {
+      "source": "/privacidad",
+      "destination": "/api/legal?p=privacidad"
     }
   ]
 }

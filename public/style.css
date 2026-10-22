@@ -546,6 +546,23 @@ input[type="text"], input[type="url"], input[type="password"], input[type="searc
 .topbar { border-bottom: 1px solid var(--ink); }
 
 .foot-disc { max-width: 72ch; margin: 10px auto 0; line-height: 1.55; }
+.foot-links { margin-top: 10px; }
+.foot-links a { color: var(--grey-2); text-decoration: underline; text-underline-offset: 2px; }
+
+/* legal pages (/aviso-legal, /terminos, /privacidad), rendered by lib/legal.js */
+body.legal-page { background: var(--paper); color: var(--ink); font-family: var(--text); margin: 0; }
+.legal { max-width: 720px; margin: 0 auto; padding: 28px max(16px, env(safe-area-inset-right, 0px)) 64px max(16px, env(safe-area-inset-left, 0px)); font-size: 15.5px; line-height: 1.65; color: var(--grey-2); }
+.legal-back { display: inline-block; font: 700 13px/1 var(--text); color: var(--ink); text-decoration: none; margin-bottom: 22px; }
+.legal h1 { font: 900 clamp(26px, 6vw, 36px)/1.1 var(--display); text-transform: uppercase; letter-spacing: -.02em; color: var(--ink); margin: 0; text-wrap: balance; }
+.legal-updated { margin-top: 8px; font-size: 13px; color: var(--grey); }
+.legal-en { margin-top: 4px; font-size: 13px; color: var(--grey); font-style: italic; }
+.legal h2 { margin: 30px 0 0; font: 800 17px/1.3 var(--text); color: var(--ink); }
+.legal p, .legal ul { margin: 10px 0 0; }
+.legal ul { padding-left: 20px; }
+.legal li { margin-top: 8px; }
+.legal b { color: var(--ink); }
+.legal a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+.legal-nav { margin-top: 36px !important; padding-top: 16px; border-top: 1px solid var(--line); font-size: 13.5px; }
 /* outline around the title's letters, in the page's opposite colour (black on
    light, white on dark); drawn behind the fill so the letters keep their weight */
 .hero .mast-title { -webkit-text-stroke: max(2px, .035em) var(--ink); paint-order: stroke fill; }

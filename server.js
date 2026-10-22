@@ -5,7 +5,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { gzipSync } from "node:zlib";
 import { fileURLToPath } from "node:url";
-import { sign, admin, sheet, tab, img, rates, health, click, popular, cats } from "./lib/api.js";
+import { sign, admin, sheet, tab, img, rates, health, click, popular, cats, legal } from "./lib/api.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(here, "public");
@@ -18,7 +18,7 @@ try {
   }
 } catch {}
 const port = Number(process.env.PORT) || 3210;
-const routes = { "/api/sign": sign, "/api/admin": admin, "/api/sheet": sheet, "/api/tab": tab, "/api/img": img, "/api/rates": rates, "/api/health": health, "/api/click": click, "/api/popular": popular, "/api/cats": cats };
+const routes = { "/api/sign": sign, "/api/admin": admin, "/api/sheet": sheet, "/api/tab": tab, "/api/img": img, "/api/rates": rates, "/api/health": health, "/api/click": click, "/api/popular": popular, "/api/cats": cats, "/api/legal": legal };
 const types = {
   ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8",
   ".css": "text/css; charset=utf-8", ".svg": "image/svg+xml", ".png": "image/png",
@@ -27,6 +27,11 @@ const types = {
 
 http.createServer(async (req, res) => {
   const url = new URL(req.url, "http://localhost");
+  const legalPage = url.pathname.match(/^\/(aviso-legal|terminos|privacidad)\/?$/);
+  if (legalPage) {
+    const { status, headers, body } = legal({ query: { p: legalPage[1] } });
+    return res.writeHead(status, headers).end(body);
+  }
   const route = routes[url.pathname];
   if (route) {
     let input = {};
