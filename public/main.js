@@ -432,7 +432,7 @@ async function shop(token) {
   // ---- agents & offer
   const agents = info.agents.map(([id, code]) => ({ id, code })).filter((a) => agentById(a.id));
   if (!agents.length) agents.push({ id: "original", code: "" });
-  const shopKey = info.sheets.map((s) => s.id.slice(0, 10)).join("-");
+  const shopKey = info.key || info.sheets.map((s) => s.id.slice(0, 10)).join("-");
   let agent = agents.find((a) => a.id === store.get("agent:" + shopKey)) || agents[0];
   // The $800 + 40% offer is the one that comes with signing up to Uidbuy
   // through the owner's link; other agents just show their code.
@@ -517,8 +517,9 @@ async function shop(token) {
   // One task per tab. "v" is the sheet's last-edit date: a new edit asks for
   // a new address, so no cache can hand back the old list.
   let sheetsNow = info.sheets;
+  // s.i is the sheet's place in the owner's list (a sheet that can't be read is left out)
   const tasksFor = (list) => list.flatMap((s, si) => s.tabs.map((tab, ti) =>
-    ({ sh: si, gid: tab.gid, name: tab.name, v: s.modified || "", sheet: { id: s.id, h: s.h }, order: si * 1000 + ti })));
+    ({ sh: s.i ?? si, gid: tab.gid, name: tab.name, v: s.modified || "", sheet: { id: s.id, h: s.h }, order: (s.i ?? si) * 1000 + ti })));
   const tasks = tasksFor(sheetsNow);
   loadingLeft = tasks.length;
   let failures = 0, lastError = null;
@@ -546,12 +547,16 @@ async function shop(token) {
   const lastEdit = () => sheetsNow.map((s) => s.modified).filter(Boolean).sort().pop() || null;
   let checking = false, checkedAt = Date.now();
   async function checkForEdits() {
-    if (checking || loadingLeft > 0 || !sheetsNow.some((s) => s.modified)) return;
+    if (checking || loadingLeft > 0) return;
     checking = true;
     checkedAt = Date.now();
     try {
       const r = await api("sheet", { c: token });
-      if (r.sheets.some((s, i) => s.modified && s.modified !== sheetsNow[i]?.modified)) {
+      // a sheet edited, or one that came back (or went away), reads everything again
+      const before = new Map(sheetsNow.map((s) => [s.id, s.modified]));
+      const changed = r.sheets.length !== sheetsNow.length ||
+        r.sheets.some((s) => !before.has(s.id) || (s.modified && s.modified !== before.get(s.id)));
+      if (changed) {
         const fresh = new Map();
         const q = tasksFor(r.sheets);
         await Promise.all(Array.from({ length: Math.min(4, q.length) }, async () => {
