@@ -484,17 +484,12 @@ input[type="text"], input[type="url"], input[type="password"], input[type="searc
 #gallery-imgs .ph { position: relative; border-radius: 12px; overflow: hidden; background: var(--ph); }
 #gallery-imgs img { width: 100%; }
 
-.settings h2, .intro h2 { margin: 0 0 18px; font: 900 21px/1.05 var(--display); text-transform: uppercase; letter-spacing: -.02em; }
+.settings h2 { margin: 0 0 18px; font: 900 21px/1.05 var(--display); text-transform: uppercase; letter-spacing: -.02em; }
 .set-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; border-top: 1px solid var(--line); font: 700 14px "Archivo", sans-serif; }
 .set-row .pill-select { width: 190px; }
 .seg { display: inline-flex; background: var(--paper); border: 1px solid var(--line); border-radius: 100px; padding: 3px; }
 .seg button { border: 0; background: transparent; border-radius: 100px; padding: 6px 12px; font: 700 12.5px "Archivo", sans-serif; cursor: pointer; color: var(--grey-2); }
 .seg button[aria-checked="true"] { background: var(--ink); color: var(--paper); }
-.intro { padding-top: 30px; }
-.intro h2 { margin: 0 0 8px; }
-.intro-ico { display: grid; place-items: center; width: 60px; height: 60px; margin: 0 auto 14px; border-radius: 18px; background: #0a0a0a; color: var(--accent-soft); }
-.intro p { margin: 0 0 16px; }
-.intro .set-row:last-of-type { margin-bottom: 18px; border-bottom: 1px solid var(--line); }
 
 /* ---------------------------------------------------------------- product window (like flayfind's outfit window) */
 .pm { width: 100vw; height: 100dvh; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; background: transparent; color: #fff; overflow: hidden; }

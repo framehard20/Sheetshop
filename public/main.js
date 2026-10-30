@@ -373,40 +373,10 @@ async function shop(token) {
   let currency = pickCurrency(store.get("currency"));
   document.documentElement.lang = lang;
 
-  // ---- first thing every time the page opens: language and currency, with
-  // the visitor's last choice (or English and US dollars) already selected
+  // ---- language and currency: the visitor's last choice, else the device's
+  // (no window on arrival; both can be changed any time from the settings
+  // button at the top)
   let onLocale = () => {}; // replaced once the shop is drawn
-  const introDone = new Promise((resolve) => {
-    const d = $("#intro"), ls = $("#intro-lang"), cs = $("#intro-cur");
-    ls.replaceChildren(...Object.entries(LANGS).map(([v, n]) => el("option", { value: v, textContent: n })));
-    ls.value = lang;
-    const paint = () => {
-      const tt = translator(ls.value);
-      $("#intro-title").textContent = tt("introTitle");
-      $("#intro-text").textContent = tt("introText");
-      $("#intro-lang-l").textContent = tt("language");
-      $("#intro-cur-l").textContent = tt("currency");
-      $("#intro-ok").textContent = tt("accept");
-      let name = (c) => c;
-      try { const dn = new Intl.DisplayNames([localeFor(ls.value)], { type: "currency" }); name = (c) => `${c} · ${dn.of(c)}`; } catch {}
-      const keep = cs.value || currency;
-      cs.replaceChildren(...CURRENCIES.map((c) => el("option", { value: c, textContent: name(c) })));
-      cs.value = keep;
-    };
-    paint();
-    ls.onchange = paint;
-    d.addEventListener("cancel", (e) => e.preventDefault()); // Esc doesn't skip it
-    $("#intro-ok").onclick = () => {
-      const changed = ls.value !== lang || cs.value !== currency;
-      lang = ls.value; currency = cs.value;
-      store.set("lang", lang); store.set("currency", currency);
-      t = translator(lang); locale = localeFor(lang);
-      d.close();
-      if (changed) onLocale();
-      resolve();
-    };
-    openModal(d);
-  });
 
   const grid = $("#grid");
   const status = (s) => ($("#status").textContent = s);
@@ -897,14 +867,14 @@ async function shop(token) {
   $("#ready-again").addEventListener("click", () => signedUp("before_buy_again"));
   $("#ready-cta").addEventListener("click", goToProduct);
 
-  // ---- welcome gift: 5 seconds after the language window is accepted, on
+  // ---- welcome gift: 5 seconds after arriving, on
   // every visit; if another pop-up is open then, it waits until that closes
   function maybeWelcome() {
     if (!offerOn()) return;
     if (document.querySelector("dialog[open]")) return setTimeout(maybeWelcome, 500);
     openModal($("#welcome"));
   }
-  introDone.then(() => setTimeout(maybeWelcome, 5000));
+  setTimeout(maybeWelcome, 5000);
   $("#wel-cta").addEventListener("click", () => { signedUp("welcome_popup"); $("#welcome").close(); });
   $("#offer").addEventListener("click", () => { if (offerOn()) signedUp("under_title"); });
   $("#reg").addEventListener("click", () => signedUp("register_card"));
