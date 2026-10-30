@@ -455,24 +455,29 @@ input[type="text"], input[type="url"], input[type="password"], input[type="searc
 /* welcome gift */
 /* dark like the shop's hero, with mariosanczz.com's green: the mascot, a green
    edge and the 3D green button */
-.welcome { color: #fff; text-align: center; padding: 30px 24px 22px; border: 2px solid var(--reg);
+/* it always fits on the screen: no scrolling inside (smaller screens drop the
+   list of perks, then the mascot) */
+.welcome { color: #fff; text-align: center; padding: 26px 22px 20px; border: 2px solid var(--reg); overflow: hidden;
   background: radial-gradient(120% 70% at 100% 0%, rgb(34 197 94 / .32), transparent 60%), radial-gradient(110% 80% at 0% 100%, rgb(47 102 240 / .5), transparent 60%), #0a0a0a;
   box-shadow: 0 0 0 4px rgb(34 197 94 / .18), 0 30px 80px rgb(0 0 0 / .45); }
-.wel-pic { display: block; width: 112px; height: 112px; margin: 0 auto 14px; border-radius: 28px; overflow: hidden; background: #fff; box-shadow: 0 0 0 3px var(--reg), 0 14px 30px -10px rgb(34 197 94 / .6); }
+.wel-pic { display: block; width: 92px; height: 92px; margin: 0 auto 12px; border-radius: 28px; overflow: hidden; background: #fff; box-shadow: 0 0 0 3px var(--reg), 0 14px 30px -10px rgb(34 197 94 / .6); }
 .wel-pic[hidden] { display: none; }
 .wel-pic img { width: 100%; height: 100%; display: block; object-fit: cover; }
 .wel-kicker { margin: 0; font: 700 11px "Archivo", sans-serif; letter-spacing: .1em; text-transform: uppercase; opacity: .75; }
-.wel-amount { margin: 8px 0 0; font: 900 clamp(76px, 24vw, 110px)/.85 var(--display); letter-spacing: -.04em; color: var(--reg); }
+.wel-amount { margin: 6px 0 0; font: 900 clamp(64px, 20vw, 96px)/.85 var(--display); letter-spacing: -.04em; color: var(--reg); }
 .wel-line { margin: 10px 0 0; font: 800 18px/1.1 "Archivo", sans-serif; text-transform: uppercase; letter-spacing: -.01em; }
 .wel-line b { color: var(--reg); }
-.wel-text { margin: 14px auto 0; max-width: 32ch; font-size: 14.5px; opacity: .8; }
-.wel-perks { list-style: none; padding: 0; margin: 18px 0 22px; display: grid; gap: 8px; text-align: left; font: 600 13px "Archivo", sans-serif; }
-.wel-perks li { display: flex; align-items: center; gap: 10px; background: rgb(255 255 255 / .07); border: 1px solid rgb(255 255 255 / .1); border-radius: 12px; padding: 10px 12px; }
+.wel-text { margin: 10px auto 0; max-width: 32ch; font-size: 14.5px; opacity: .8; }
+.wel-perks { list-style: none; padding: 0; margin: 14px 0 18px; display: grid; gap: 8px; text-align: left; font: 600 13px "Archivo", sans-serif; }
+.wel-perks li { display: flex; align-items: center; gap: 10px; background: rgb(255 255 255 / .07); border: 1px solid rgb(255 255 255 / .1); border-radius: 12px; padding: 8px 12px; }
 .wel-perks li::before { content: "✓"; display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: var(--reg-deep); font-size: 11px; font-weight: 900; flex: none; }
 .wel-btn { background: var(--reg); border-color: var(--reg); color: #0a0a0a; font-weight: 900; position: relative; overflow: hidden; box-shadow: 0 4px 0 var(--reg-deep), 0 12px 30px -8px rgb(34 197 94 / .6); }
 .wel-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--reg-deep), 0 8px 20px -8px rgb(34 197 94 / .6); }
 .wel-btn::after { content: ""; position: absolute; inset: 0; background: linear-gradient(105deg, transparent 35%, rgb(255 255 255 / .35) 50%, transparent 65%); transform: translateX(-100%); animation: shine 3.2s ease-in-out 1.2s infinite; }
 .skip.light { color: rgb(255 255 255 / .65); }
+.welcome .skip { margin-top: 4px; }
+@media (max-height: 660px) { .wel-perks { display: none; } .wel-btn { margin-top: 18px; } }
+@media (max-height: 470px) { .wel-pic { display: none; } }
 
 .gallery { width: min(980px, calc(100vw - 24px)); padding: 54px 16px 16px; }
 #gallery-imgs { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
