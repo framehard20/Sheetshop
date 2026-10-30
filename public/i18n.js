@@ -35,9 +35,11 @@ const T = {
     gateCta: "Get my $800 + 40% off", gateSkip: "I already have an account · **go to the item →**",
     readyTitle: "Signed up?", readyText: "Finish in the {agent} tab, then tap below to open the item you wanted.",
     readyCta: "Yes, go to the item", readyAgain: "{agent} didn't open? Open it again",
-    welKicker: "Welcome gift", welAmount: "$800", welLine: "in discounts **+ 40% off shipping**",
+    welKicker: "Welcome gift", welAmount: "$800", welLine: "FREE in coupons **+ 40% off shipping**",
     welText: "Create your free {agent} account through our link and it's yours on your first orders.",
     welCta: "Claim my $800", welLater: "Maybe later",
+    regTag: "Free sign-up", regTitle: "Create your {agent} account", regCta: "Sign up now",
+    regOffer: "With our link: **$800 FREE in coupons** + a **40% off shipping** coupon",
     cats: {
       shoes: "Shoes", tshirts: "T-shirts", hoodies: "Hoodies", jackets: "Jackets & Coats", pants: "Pants & Jeans",
       shorts: "Shorts", sweaters: "Knitwear", shirts: "Shirts & Polos", sets: "Tracksuits & Sets", jerseys: "Jerseys",
@@ -74,9 +76,11 @@ const T = {
     gateCta: "Quiero mis 800 $ + 40%", gateSkip: "Ya tengo cuenta · **ir al artículo →**",
     readyTitle: "¿Ya te has registrado?", readyText: "Termina en la pestaña de {agent} y toca abajo para abrir el artículo que querías.",
     readyCta: "Sí, ir al artículo", readyAgain: "¿No se abrió {agent}? Ábrelo otra vez",
-    welKicker: "Regalo de bienvenida", welAmount: "800 $", welLine: "en descuentos **+ 40% en el envío**",
+    welKicker: "Regalo de bienvenida", welAmount: "800 $", welLine: "GRATIS en cupones **+ 40% en el envío**",
     welText: "Crea tu cuenta gratis de {agent} con nuestro enlace y es tuyo en tus primeros pedidos.",
     welCta: "Quiero mis 800 $", welLater: "Ahora no",
+    regTag: "Registro gratis", regTitle: "Crea tu cuenta en {agent}", regCta: "Registrarme ahora",
+    regOffer: "Con nuestro enlace: **800 $ GRATIS en cupones** + cupón del **40 % en el envío**",
     cats: {
       shoes: "Zapatillas", tshirts: "Camisetas", hoodies: "Sudaderas", jackets: "Chaquetas y abrigos", pants: "Pantalones y vaqueros",
       shorts: "Pantalones cortos", sweaters: "Punto", shirts: "Camisas y polos", sets: "Chándals y conjuntos", jerseys: "Camisetas de fútbol",
@@ -113,9 +117,11 @@ const T = {
     gateCta: "Je veux mes 800 $ + 40 %", gateSkip: "J’ai déjà un compte · **voir l’article →**",
     readyTitle: "Inscrit ?", readyText: "Terminez dans l’onglet {agent}, puis touchez ci-dessous pour ouvrir l’article.",
     readyCta: "Oui, voir l’article", readyAgain: "{agent} ne s’est pas ouvert ? Rouvrir",
-    welKicker: "Cadeau de bienvenue", welAmount: "800 $", welLine: "de réductions **+ 40 % sur la livraison**",
+    welKicker: "Cadeau de bienvenue", welAmount: "800 $", welLine: "OFFERTS en bons **+ 40 % sur la livraison**",
     welText: "Créez votre compte {agent} gratuit avec notre lien et profitez-en sur vos premières commandes.",
     welCta: "Je récupère mes 800 $", welLater: "Plus tard",
+    regTag: "Inscription gratuite", regTitle: "Crée ton compte {agent}", regCta: "M'inscrire",
+    regOffer: "Avec notre lien : **800 $ OFFERTS en bons** + un bon de **40 % sur la livraison**",
     cats: {
       shoes: "Chaussures", tshirts: "T-shirts", hoodies: "Sweats à capuche", jackets: "Vestes et manteaux", pants: "Pantalons et jeans",
       shorts: "Shorts", sweaters: "Mailles", shirts: "Chemises et polos", sets: "Survêtements et ensembles", jerseys: "Maillots",
@@ -152,9 +158,11 @@ const T = {
     gateCta: "Meine 800 $ + 40 % holen", gateSkip: "Ich habe schon ein Konto · **zum Artikel →**",
     readyTitle: "Registriert?", readyText: "Schließ es im {agent}-Tab ab und tippe dann unten, um den Artikel zu öffnen.",
     readyCta: "Ja, zum Artikel", readyAgain: "{agent} hat sich nicht geöffnet? Nochmal öffnen",
-    welKicker: "Willkommensgeschenk", welAmount: "800 $", welLine: "Rabatt **+ 40 % auf den Versand**",
+    welKicker: "Willkommensgeschenk", welAmount: "800 $", welLine: "GRATIS in Gutscheinen **+ 40 % auf den Versand**",
     welText: "Erstelle dein kostenloses {agent}-Konto über unseren Link und nutze es bei deinen ersten Bestellungen.",
     welCta: "800 $ sichern", welLater: "Später",
+    regTag: "Kostenlos anmelden", regTitle: "Erstell dein {agent}-Konto", regCta: "Jetzt anmelden",
+    regOffer: "Mit unserem Link: **800 $ GRATIS in Gutscheinen** + ein Gutschein über **40 % auf den Versand**",
     cats: {
       shoes: "Schuhe", tshirts: "T-Shirts", hoodies: "Hoodies", jackets: "Jacken & Mäntel", pants: "Hosen & Jeans",
       shorts: "Shorts", sweaters: "Strick", shirts: "Hemden & Polos", sets: "Trainingsanzüge & Sets", jerseys: "Trikots",
@@ -191,9 +199,11 @@ const T = {
     gateCta: "Voglio i miei 800 $ + 40%", gateSkip: "Ho già un account · **vai all’articolo →**",
     readyTitle: "Registrato?", readyText: "Completa nella scheda di {agent}, poi tocca qui sotto per aprire l’articolo.",
     readyCta: "Sì, vai all’articolo", readyAgain: "{agent} non si è aperto? Riaprilo",
-    welKicker: "Regalo di benvenuto", welAmount: "800 $", welLine: "di sconti **+ 40% sulla spedizione**",
+    welKicker: "Regalo di benvenuto", welAmount: "800 $", welLine: "GRATIS in coupon **+ 40% sulla spedizione**",
     welText: "Crea il tuo account {agent} gratuito con il nostro link ed è tuo sui primi ordini.",
     welCta: "Voglio i miei 800 $", welLater: "Più tardi",
+    regTag: "Registrazione gratuita", regTitle: "Crea il tuo account {agent}", regCta: "Registrati ora",
+    regOffer: "Con il nostro link: **800 $ GRATIS in coupon** + un coupon del **40% sulla spedizione**",
     cats: {
       shoes: "Scarpe", tshirts: "T-shirt", hoodies: "Felpe", jackets: "Giacche e cappotti", pants: "Pantaloni e jeans",
       shorts: "Shorts", sweaters: "Maglieria", shirts: "Camicie e polo", sets: "Tute e completi", jerseys: "Maglie da calcio",
@@ -230,9 +240,11 @@ const T = {
     gateCta: "Quero os meus 800 $ + 40%", gateSkip: "Já tenho conta · **ir para o artigo →**",
     readyTitle: "Já te registaste?", readyText: "Termina no separador da {agent} e toca abaixo para abrir o artigo.",
     readyCta: "Sim, ir para o artigo", readyAgain: "A {agent} não abriu? Abrir de novo",
-    welKicker: "Presente de boas-vindas", welAmount: "800 $", welLine: "em descontos **+ 40% no envio**",
+    welKicker: "Presente de boas-vindas", welAmount: "800 $", welLine: "GRÁTIS em cupões **+ 40% no envio**",
     welText: "Cria a tua conta grátis na {agent} com o nosso link e é teu nas primeiras encomendas.",
     welCta: "Quero os meus 800 $", welLater: "Agora não",
+    regTag: "Registo grátis", regTitle: "Cria a tua conta na {agent}", regCta: "Registar agora",
+    regOffer: "Com o nosso link: **800 $ GRÁTIS em cupões** + cupão de **40% no envio**",
     cats: {
       shoes: "Sapatilhas", tshirts: "T-shirts", hoodies: "Sweats", jackets: "Casacos", pants: "Calças e jeans",
       shorts: "Calções", sweaters: "Malhas", shirts: "Camisas e polos", sets: "Fatos de treino e conjuntos", jerseys: "Camisolas de futebol",
@@ -269,9 +281,11 @@ const T = {
     gateCta: "领取 800 $ + 运费优惠", gateSkip: "我已有账户 · **前往商品 →**",
     readyTitle: "注册好了吗？", readyText: "在 {agent} 页面完成注册，然后点击下方打开你想要的商品。",
     readyCta: "好的，前往商品", readyAgain: "{agent} 没有打开？再打开一次",
-    welKicker: "新人礼包", welAmount: "800 $", welLine: "优惠券 **+ 运费 6 折**",
+    welKicker: "新人礼包", welAmount: "800 $", welLine: "免费优惠券 **+ 运费 6 折**",
     welText: "通过我们的链接免费注册 {agent}，首批订单即可使用。",
     welCta: "领取 800 $", welLater: "以后再说",
+    regTag: "免费注册", regTitle: "创建你的 {agent} 账户", regCta: "立即注册",
+    regOffer: "通过我们的链接：**免费 800 $ 优惠券** + **运费 6 折**券",
     cats: {
       shoes: "鞋履", tshirts: "T恤", hoodies: "卫衣", jackets: "外套", pants: "裤子和牛仔裤",
       shorts: "短裤", sweaters: "针织衫", shirts: "衬衫和 Polo", sets: "运动套装", jerseys: "球衣",
@@ -281,8 +295,18 @@ const T = {
   },
 };
 
+// The device's languages, e.g. ["es-ES", "en"].
+const deviceLangs = () => (typeof navigator === "undefined" ? [] : navigator.languages?.length ? navigator.languages : [navigator.language || ""]);
+
+/** The visitor's choice; on a first visit the device's language when the shop
+ *  has it, else English. */
 export function pickLang(saved) {
-  return saved && T[saved] ? saved : "en";
+  if (saved && T[saved]) return saved;
+  for (const l of deviceLangs()) {
+    const base = String(l).toLowerCase().split("-")[0];
+    if (T[base]) return base;
+  }
+  return "en";
 }
 
 export function translator(lang) {
@@ -311,8 +335,21 @@ export const CURRENCIES = [
   "TRY", "AED", "SAR", "INR", "JPY", "KRW", "CNY",
 ];
 
+// The currency of the device's country ("es-ES" → EUR), for a first visit.
+const EURO = ["AT", "BE", "CY", "DE", "EE", "ES", "FI", "FR", "GR", "HR", "IE", "IT", "LT", "LU", "LV", "MT", "NL", "PT", "SI", "SK"];
+const REGION_CURRENCY = { US: "USD", GB: "GBP", CA: "CAD", AU: "AUD", MX: "MXN", BR: "BRL", CH: "CHF", PL: "PLN", SE: "SEK", NO: "NOK", DK: "DKK",
+  CZ: "CZK", HU: "HUF", RO: "RON", TR: "TRY", AE: "AED", SA: "SAR", IN: "INR", JP: "JPY", KR: "KRW", CN: "CNY" };
+
+/** The visitor's choice, else the one of their device's country, else US dollars. */
 export function pickCurrency(saved) {
-  return saved && CURRENCIES.includes(saved) ? saved : "USD";
+  if (saved && CURRENCIES.includes(saved)) return saved;
+  for (const l of deviceLangs()) {
+    const region = String(l).split("-")[1]?.toUpperCase();
+    if (!region) continue;
+    if (EURO.includes(region)) return "EUR";
+    if (REGION_CURRENCY[region]) return REGION_CURRENCY[region];
+  }
+  return "USD";
 }
 
 // A category's name in every language, so searching "zapatillas" or

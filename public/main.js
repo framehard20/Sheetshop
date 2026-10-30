@@ -907,6 +907,7 @@ async function shop(token) {
   introDone.then(() => setTimeout(maybeWelcome, 5000));
   $("#wel-cta").addEventListener("click", () => { signedUp("welcome_popup"); $("#welcome").close(); });
   $("#offer").addEventListener("click", () => { if (offerOn()) signedUp("under_title"); });
+  $("#reg").addEventListener("click", () => signedUp("register_card"));
   $("#topbar").addEventListener("click", () => signedUp("top_bar"));
   $("#pm-cta").addEventListener("click", () => signedUp("product_window"));
   $("#sticky-offer").addEventListener("click", (e) => {
@@ -954,7 +955,17 @@ async function shop(token) {
       $("#pm-trust").replaceChildren(...["trust1", "trust2", "trust3"].map((k) => el("li", { textContent: t(k) })));
       $("#pm-trust").hidden = false;
       $("#sticky-text").textContent = t("offerShort") + " →";
-      offer.hidden = false;
+      // the big sign-up card replaces the small offer line under the title
+      offer.hidden = true;
+      const reg = $("#reg");
+      reg.href = signupUrl();
+      reg.hidden = false;
+      $("#reg-tag").textContent = t("regTag");
+      $("#reg-t").textContent = t("regTitle", { agent: agentName() });
+      t.into($("#reg-offer"), "regOffer");
+      $("#reg-cta").textContent = t("regCta");
+      // Uidbuy's fox, for a friendly, trustworthy feel (only on Uidbuy shops)
+      $("#reg-pic").hidden = $("#wel-pic").hidden = agent.id !== "uidbuy";
       trust.replaceChildren(...["trust1", "trust2", "trust3", "trust4"].map((k) => el("li", { textContent: t(k) })));
       trust.hidden = false;
       // gate & welcome
@@ -977,6 +988,7 @@ async function shop(token) {
       $("#wel-cta").textContent = t("welCta");
       $("#wel-later").textContent = t("welLater");
     } else {
+      $("#reg").hidden = true;
       offer.hidden = !agent.code;
       sticky.hidden = true;
       trust.hidden = true;

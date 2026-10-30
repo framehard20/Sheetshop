@@ -191,6 +191,16 @@
         <span id="offer-text"></span>
         <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </a>
+      <!-- the sign-up card (agents with an offer), like mariosanczz.com's: the agent's mascot on the right -->
+      <a id="reg" class="reg" target="_blank" rel="noopener sponsored" hidden>
+        <span class="reg-txt">
+          <span class="reg-tag" id="reg-tag"></span>
+          <span class="reg-t" id="reg-t"></span>
+          <span class="reg-offer" id="reg-offer"></span>
+          <span class="reg-cta"><span id="reg-cta"></span><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        </span>
+        <span class="reg-pic" id="reg-pic" hidden><img src="/uidbuy.webp" alt="" width="108" height="108"></span>
+      </a>
       <ul id="trust" class="trust" hidden></ul>
     </section>
 
@@ -277,6 +287,7 @@
   <!-- Welcome gift: once in a while, a few seconds after arriving -->
   <dialog id="welcome" class="modal welcome" aria-labelledby="wel-amount">
     <button class="modal-x light" type="button" data-close aria-label="Close">✕</button>
+    <span class="wel-pic" id="wel-pic" hidden><img src="/uidbuy.webp" alt="" width="112" height="112"></span>
     <p class="wel-kicker" id="wel-kicker"></p>
     <p class="wel-amount" id="wel-amount"></p>
     <p class="wel-line" id="wel-line"></p>
