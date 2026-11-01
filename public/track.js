@@ -10,7 +10,7 @@ export function startTracking(websiteId) {
   if (/^(localhost|127\.|\[::1\])/.test(location.hostname) || location.hostname.endsWith(".localhost")) return;
   const s = document.createElement("script");
   s.defer = true;
-  s.src = "https://cloud.umami.is/script.js";
+  s.src = "https://radar-datos.vercel.app/script.js";
   s.dataset.websiteId = websiteId;
   // shop links are long signed codes; keep them out of the page list
   s.dataset.excludeSearch = "true";

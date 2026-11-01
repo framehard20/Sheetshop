@@ -114,7 +114,7 @@ own event, and every event carries the shop's name and agent:
 | `signup_before_buy_again` | "didn't open? open it again" in that step |
 
 It is off until the Vercel setting `SHEETSHOP_UMAMI_ID` holds the Website ID
-of a Sheetshop website in Umami (cloud.umami.is → Settings → Websites), then a
+of a Sheetshop website in Umami (https://radar-datos.vercel.app → Settings → Websites), then a
 new deploy. It never runs on localhost.
 
 ## How it reads the sheets
