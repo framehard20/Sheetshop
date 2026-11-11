@@ -4,10 +4,13 @@
 
 const queue = [];
 let ready = false;
+// On your own computer nothing is sent; the names are kept in window.__tracked
+// so a local check can read which events a click would have counted.
+const local = typeof location !== "undefined" && (/^(localhost|127\.|\[::1\])/.test(location.hostname) || location.hostname.endsWith(".localhost"));
 
 export function startTracking(websiteId) {
   if (!/^[0-9a-f-]{36}$/i.test(websiteId || "")) return;
-  if (/^(localhost|127\.|\[::1\])/.test(location.hostname) || location.hostname.endsWith(".localhost")) return;
+  if (local) return;
   const s = document.createElement("script");
   s.defer = true;
   s.src = "https://radar-datos.vercel.app/script.js";
@@ -27,6 +30,7 @@ function send(event, data) {
 }
 
 export function track(event, data) {
+  if (local) { (window.__tracked ||= []).push([event, data]); return; }
   if (ready && window.umami) send(event, data);
   else if (queue.length < 50) queue.push([event, data]);
 }

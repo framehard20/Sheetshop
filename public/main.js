@@ -67,9 +67,7 @@ function applyTheme(mode) {
   else delete document.documentElement.dataset.theme;
   store.set("theme", mode);
 }
-const isDark = () => document.documentElement.dataset.theme
-  ? document.documentElement.dataset.theme === "dark"
-  : matchMedia("(prefers-color-scheme: dark)").matches;
+
 
 const qs = new URLSearchParams(location.search);
 // /admin is the owner's panel; ?c=<signed settings> is an extra shop link;
@@ -337,12 +335,21 @@ function startMast() {
   mastStarted = true;
   const ok = (() => { try { return !!document.createElement("canvas").getContext("webgl2"); } catch { return false; } })();
   if (!ok) return;
-  import("/garment3d.js").then(({ mountGarment }) => {
+  // The sneakers are decoration and weigh about 2.5 MB: they wait until the
+  // page is idle (products and photos go first) and are left out for visitors
+  // on data saver or a slow connection.
+  const net = navigator.connection;
+  if (net && (net.saveData || /(^|-)2g$/.test(net.effectiveType || ""))) return;
+  // short screens hide the sneakers (see the stylesheet): nothing to load then
+  if (getComputedStyle(document.querySelector(".mast-shoe")).display === "none") return;
+  const load = () => import("/garment3d.js").then(({ mountGarment }) => {
     const [l, r] = document.querySelectorAll(".mast-shoe canvas");
     const shoe = (canvas, opts) => mountGarment(canvas, { url: "/models/sneaker.glb", pitch: 0.12, onLoad: () => canvas.classList.add("ready"), ...opts });
     shoe(l, { yaw: 0.45, mirror: true, phase: 0 });
     shoe(r, { yaw: -0.45, phase: 2.6 });
   }).catch(() => {});
+  if (window.requestIdleCallback) requestIdleCallback(load, { timeout: 4000 });
+  else setTimeout(load, 1500);
 }
 
 // ======================================================================== shop
@@ -377,6 +384,7 @@ async function shop(token) {
   // (no window on arrival; both can be changed any time from the settings
   // button at the top)
   let onLocale = () => {}; // replaced once the shop is drawn
+  let onQuery = () => {};  // same: what happens when the search text changes
 
   const grid = $("#grid");
   const status = (s) => ($("#status").textContent = s);
@@ -616,7 +624,7 @@ async function shop(token) {
     $("#pm-price").textContent = priceText(p);
     $("#pm-price").parentElement.hidden = !priceText(p);
     $("#pm-buy").href = linkFor(p);
-    $("#pm-buy-text").textContent = t("pmBuy", { agent: agentName() });
+    paintPm();
     const many = pmPhotos.length > 1;
     $("#pm-prev").hidden = $("#pm-next").hidden = !many;
     $("#pm-prev").setAttribute("aria-label", t("prev"));
@@ -628,8 +636,37 @@ async function shop(token) {
     }) : []));
     showPhoto(0);
     $(".pm-panel").scrollTop = 0;
+    // the phone's back button (or swipe) closes this window instead of leaving the site
+    if (!history.state?.pm) history.pushState({ pm: 1 }, "");
     openModal(pm);
-    $("#pm-buy").focus({ preventScroll: true });
+    ($("#pm-cta").hidden ? $("#pm-buy") : $("#pm-cta")).focus({ preventScroll: true });
+  }
+  pm.addEventListener("close", () => { if (history.state?.pm) history.back(); });
+  addEventListener("popstate", () => { if (pm.open) pm.close(); });
+  if (history.state?.pm) history.replaceState(null, ""); // a reload with the window open
+
+  // The window's buttons follow where the visitor is, so there is no second
+  // pop-up before buying:
+  // - never opened the sign-up link: sign-up first (green), with Buy right
+  //   under it at the same size, straight to the product;
+  // - opened it before: Buy first, sign-up as one small line;
+  // Buy always has the same words and the same blue, so the two are never mixed up.
+  // - agents without the offer: just Buy.
+  function paintPm() {
+    const offer = offerOn(), fresh = offer && !store.get("joined");
+    $("#pm-info").classList.toggle("fresh", fresh);
+    $("#pm-why").hidden = $("#pm-cta").hidden = $("#pm-fine").hidden = !fresh;
+    $("#pm-again").hidden = !offer || fresh;
+    $("#pm-trust").hidden = !offer;
+    $("#pm-buy-text").textContent = t("pmBuy", { agent: agentName() });
+    if (!offer) return;
+    $("#pm-cta").href = $("#pm-again").href = signupUrl();
+    $("#pm-why").textContent = t("pmWhy", { agent: agentName() });
+    $("#pm-cta-text").textContent = t("pmCta");
+    $("#pm-cta-sub").textContent = t("stickyS");
+    $("#pm-fine").textContent = t("pmFine");
+    t.into($("#pm-again"), "pmAgain");
+    $("#pm-trust").replaceChildren(...["trust1", "trust2", "trust3"].map((k) => el("li", { textContent: t(k) })));
   }
   $("#pm-prev").onclick = () => showPhoto(pmAt - 1);
   $("#pm-next").onclick = () => showPhoto(pmAt + 1);
@@ -637,13 +674,10 @@ async function shop(token) {
     if (e.key === "ArrowLeft") showPhoto(pmAt - 1);
     if (e.key === "ArrowRight") showPhoto(pmAt + 1);
   });
-  // Buy: the sign-up step comes first, the first time in each page load
-  $("#pm-buy").addEventListener("click", (e) => {
-    if (pmProduct && (e.metaKey || e.ctrlKey || e.shiftKey)) countTap(pmProduct);
-    if (e.metaKey || e.ctrlKey || e.shiftKey || !pmProduct) return;
-    e.preventDefault();
-    buy(pmProduct);
-  });
+  // Buy is a plain link to the product on the agent (a real link opens more
+  // reliably than a script inside Instagram's or TikTok's browser); the tap
+  // only counts towards "Most popular".
+  $("#pm-buy").addEventListener("click", () => { if (pmProduct) countTap(pmProduct); });
 
   function toggleFav(p, btn) {
     if (favs.has(p.key)) favs.delete(p.key); else favs.add(p.key);
@@ -681,7 +715,7 @@ async function shop(token) {
         $("#tiles").replaceChildren(...cats.map((c, i) => {
           const b = el("button", { type: "button", className: "tile", "data-cat": c }, picture(covers[i], 300),
             el("b", { textContent: t.cat(c) }), el("small"));
-          b.onclick = () => { setCat(c); $("#bar").scrollIntoView({ behavior: "smooth" }); };
+          b.onclick = () => { setCat(c); scrollBelowTop($("#bar"), true); };
           return b;
         }));
       }
@@ -774,9 +808,21 @@ async function shop(token) {
     if (!list.length) {
       if (loadingLeft > 0 && !items.length) skeleton();
       else if (loadingLeft === 0 || items.length) {
-        grid.replaceChildren(query
-          ? el("div", { className: "empty-state" }, el("b", { textContent: t("nothing", { q: query }) }), t("nothingTip"))
-          : el("div", { className: "empty-state" }, el("b", { textContent: t("empty") })));
+        // never a dead end: a way out of the search or the filter is always one tap away
+        const out = (label, go) => { const b = el("button", { type: "button", className: "btn primary", textContent: label }); b.onclick = go; return b; };
+        const everything = () => { query = ""; $("#q").value = ""; cat = "all"; brand = ""; onQuery(); };
+        if (query) {
+          // the same words may match in another category or brand
+          const score = makeQuery(query);
+          const elsewhere = cat !== "all" || brand ? items.filter((p) => score(p.ix) > 0).length : 0;
+          grid.replaceChildren(el("div", { className: "empty-state" }, el("b", { textContent: t("nothing", { q: query }) }), t("nothingTip"),
+            el("div", { className: "empty-acts" },
+              elsewhere ? out(t("seeInAll", { n: elsewhere.toLocaleString(locale) }), () => { cat = "all"; brand = ""; onQuery(); }) : null,
+              out(t("seeAll"), everything))));
+        } else {
+          grid.replaceChildren(el("div", { className: "empty-state" }, el("b", { textContent: t("empty") }),
+            cat !== "all" || brand ? el("div", { className: "empty-acts" }, out(t("seeAll"), everything)) : null));
+        }
       }
       paintStatus();
       return;
@@ -820,58 +866,34 @@ async function shop(token) {
     for (const [k, v] of [["cat", cat === "all" ? "" : cat], ["brand", brand], ["sort", sort === "featured" ? "" : sort], ["q", query]]) {
       if (v) p.set(k, v); else p.delete(k);
     }
-    history.replaceState(null, "", `${location.pathname}?${p}`);
+    history.replaceState(history.state, "", `${location.pathname}?${p}`);
   }
 
-  // ---- buying: sign-up step first (once per visit), then the product
-  const gate = $("#gate");
-  let gateShown = false;
-  let gateProduct = null;
+  // ---- buying: the tap counts towards "Most popular"
   const tapped = new Set();
   function countTap(p) {
     if (tapped.has(p.key)) return;
     tapped.add(p.key);
     fetch("/api/click", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ k: p.key }), keepalive: true }).catch(() => {});
   }
-  function buy(p) {
-    countTap(p);
-    // once per page load, on the first product tapped; a reload starts over
-    if (offerOn() && !gateShown) { gateShown = true; return openGate(p); }
-    window.open(linkFor(p), "_blank", "noopener");
-  }
-  function openGate(p) {
-    gateProduct = p;
-    $("#gate-step1").hidden = false;
-    $("#gate-step2").hidden = true;
-    $("#gate-product").replaceChildren(picture(p, 200),
-      el("div", {}, el("span", { textContent: p.name }), priceText(p) ? el("small", { textContent: priceText(p) }) : null));
-    openModal(gate);
-    $("#gate-cta").focus();
-  }
   // Only clicks on sign-up links are counted, each place under its own name.
   const signedUp = (where) => {
     store.set("joined", Date.now());
     track("signup_" + where, { shop: info.title, agent: agent.id });
+    // the product window now puts Buy first (if it is open, focus follows)
+    const had = document.activeElement === $("#pm-cta");
+    paintPm();
+    if (had) $("#pm-buy").focus({ preventScroll: true });
   };
-  $("#gate-cta").addEventListener("click", () => {
-    signedUp("before_buy");
-    $("#gate-step1").hidden = true;
-    $("#gate-step2").hidden = false;
-    $("#ready-cta").focus();
-  });
-  const goToProduct = () => {
-    gate.close();
-    if (gateProduct) window.open(linkFor(gateProduct), "_blank", "noopener");
-  };
-  $("#gate-skip").addEventListener("click", goToProduct);
-  $("#ready-again").addEventListener("click", () => signedUp("before_buy_again"));
-  $("#ready-cta").addEventListener("click", goToProduct);
 
-  // ---- welcome gift: 5 seconds after arriving, on
-  // every visit; if another pop-up is open then, it waits until that closes
+  // ---- welcome gift: 5 seconds after arriving, once per visit. Not on the
+  // visit that starts with the guide (it already shows the sign-up), not for
+  // someone typing in the search box, and not after the sign-up link was
+  // opened. If another pop-up is open then, it waits until that closes.
   function maybeWelcome() {
-    if (!offerOn()) return;
-    if (document.querySelector("dialog[open]")) return setTimeout(maybeWelcome, 500);
+    if (!offerOn() || tour.auto || store.get("joined") || session.get("welcomed") === "1") return;
+    if (document.querySelector("dialog[open]") || tour.open || document.activeElement === $("#q")) return setTimeout(maybeWelcome, 500);
+    session.set("welcomed", "1");
     openModal($("#welcome"));
   }
   setTimeout(maybeWelcome, 5000);
@@ -880,10 +902,142 @@ async function shop(token) {
   $("#reg").addEventListener("click", () => signedUp("register_card"));
   $("#topbar").addEventListener("click", () => signedUp("top_bar"));
   $("#pm-cta").addEventListener("click", () => signedUp("product_window"));
+  $("#pm-again").addEventListener("click", () => signedUp("product_window"));
   $("#sticky-offer").addEventListener("click", (e) => {
     if (e.target.closest("#sticky-x")) { e.preventDefault(); session.set("stickyOff", "1"); $("#sticky-offer").hidden = true; return; }
     signedUp("floating_bar");
   });
+
+  // ---- moving the page: put something right under the bars that stay at the top
+  const nav = $(".nav");
+  const reduced = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function topBars() {
+    // the part of the header that stays on screen once the page has scrolled
+    let h = nav.offsetHeight + Math.min(0, parseFloat(getComputedStyle(nav).top) || 0);
+    const bar = $("#bar");
+    if (getComputedStyle(bar).position === "sticky") h += bar.offsetHeight;
+    return h;
+  }
+  function scrollBelowTop(node, smooth, gap = 0) {
+    const bars = node === $("#bar") ? topBars() - (getComputedStyle(node).position === "sticky" ? node.offsetHeight : 0) : topBars();
+    const y = node.getBoundingClientRect().top + scrollY - bars - gap;
+    window.scrollTo({ top: Math.max(0, y), behavior: smooth && !reduced() ? "smooth" : "instant" });
+  }
+
+  // ---- "How it works": three short steps that point at the real search box,
+  // the real sign-up button and a real product. It opens by itself on a first
+  // visit (remembered in this browser) and again from the button at the top.
+  // It is a small card at the bottom, not a window: the page behind it keeps
+  // working, and Skip, Esc or opening anything else closes it.
+  const tour = { open: false, auto: false, at: 0, steps: [], target: null, from: null };
+  const tourBox = $("#tour");
+  // The spotlight: everything goes dark except the part the step talks about.
+  // It is one box laid over that part with a very wide shadow around it, and
+  // it lets taps through, so the lit part (and the page) can still be used.
+  const spot = $("#tour-spot");
+  function placeSpot() {
+    if (!tour.open) return;
+    // the products were drawn again: find this step's part once more
+    if (tour.target && !tour.target.isConnected) {
+      tour.target = tour.steps[tour.at].target();
+      tour.target?.classList.add("tour-target");
+    }
+    const part = tour.target;
+    const r = part?.getBoundingClientRect();
+    // scrolled out of sight: the dark goes away, so the page never looks stuck
+    const out = !r || !r.width || r.bottom < 0 || r.top > innerHeight;
+    spot.classList.toggle("gone", out);
+    if (out) return;
+    const pad = part.classList.contains("card") ? 4 : 6;
+    Object.assign(spot.style, {
+      top: `${r.top - pad}px`, left: `${r.left - pad}px`, width: `${r.width + pad * 2}px`, height: `${r.height + pad * 2}px`,
+      borderRadius: `calc(${getComputedStyle(part).borderTopLeftRadius} + ${pad}px)`,
+    });
+  }
+  addEventListener("scroll", placeSpot, { passive: true });
+  addEventListener("resize", placeSpot);
+  setInterval(placeSpot, 250); // photos and products arriving move things
+  function tourSteps() {
+    const firstCard = () => (!$("#pop-wrap").hidden && $("#pop .card")) || $("#grid .card") || $("#list-title");
+    const steps = [{ t: "tour1t", d: "tour1d", target: () => $("#search-box") }];
+    if (offerOn()) steps.push({ t: "tour2t", d: "tour2d", target: () => $("#reg .reg-cta"), signup: true });
+    steps.push({ t: "tour3t", d: offerOn() ? "tour3d" : "tour3dAny", target: firstCard });
+    return steps;
+  }
+  function paintTour() {
+    if (!tour.open) return;
+    const step = tour.steps[tour.at], last = tour.at === tour.steps.length - 1;
+    const vars = { agent: agentName(), n: tour.at + 1, m: tour.steps.length };
+    $("#tour-n").textContent = t("tourStep", vars);
+    $("#tour-dots").replaceChildren(...tour.steps.map((_, i) => el("i", { className: i === tour.at ? "on" : "" })));
+    $("#tour-t").textContent = t(step.t, vars);
+    t.into($("#tour-d"), step.d, vars);
+    const reg = $("#tour-reg");
+    reg.hidden = !step.signup;
+    if (step.signup) { reg.href = signupUrl(); reg.textContent = t("regCta"); }
+    $("#tour-skip").textContent = t("tourSkip");
+    $("#tour-skip").hidden = last;
+    $("#tour-next").textContent = t(last ? "tourDone" : "tourNext");
+  }
+  function tourGo(i) {
+    tour.at = i;
+    tour.target?.classList.remove("tour-target");
+    tour.target = tour.steps[i].target();
+    paintTour();
+    if (tour.target) {
+      tour.target.classList.add("tour-target");
+      // bring it into the free space between the top bars and the card; looked
+      // at again a moment later, in case the page was still moving or loading
+      const show = () => {
+        if (!tour.open || tour.at !== i || !tour.target?.isConnected || tour.target.closest(".nav")) return;
+        const r = tour.target.getBoundingClientRect(), top = topBars() + 14, bottom = tourBox.getBoundingClientRect().top - 14;
+        if (r.top >= top && r.bottom <= bottom) return;
+        const y = r.top + scrollY - top - Math.max(0, (bottom - top - r.height) / 2);
+        window.scrollTo({ top: Math.max(0, y), behavior: reduced() ? "instant" : "smooth" });
+      };
+      show();
+      setTimeout(show, 700);
+    }
+    placeSpot();
+    // the card is read out again at each step (its title and text label it)
+    tourBox.focus({ preventScroll: true });
+  }
+  function openTour(auto) {
+    if (tour.open) return;
+    Object.assign(tour, { open: true, auto: auto || tour.auto, steps: tourSteps(), from: auto ? null : document.activeElement });
+    store.set("tour", 1);
+    tourBox.hidden = spot.hidden = false;
+    $("#shop").classList.add("touring");
+    track("tour_open", { auto: !!auto });
+    tourGo(0);
+  }
+  function closeTour(how) {
+    if (!tour.open) return;
+    tour.open = false;
+    tourBox.hidden = spot.hidden = true;
+    $("#shop").classList.remove("touring");
+    tour.target?.classList.remove("tour-target");
+    tour.target = null;
+    track(how === "done" ? "tour_done" : "tour_skip", { step: tour.at + 1 });
+    if (tour.from?.isConnected && how !== "away") tour.from.focus({ preventScroll: true });
+  }
+  $("#tour-next").onclick = () => (tour.at < tour.steps.length - 1 ? tourGo(tour.at + 1) : closeTour("done"));
+  $("#tour-skip").onclick = () => closeTour("skip");
+  $("#tour-reg").addEventListener("click", () => signedUp("register_card"));
+  $("#btn-help").onclick = () => (tour.open ? closeTour("skip") : openTour(false));
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && tour.open && !document.querySelector("dialog[open]")) closeTour("skip"); });
+  // opening a product, the settings or any other window ends the guide
+  for (const d of document.querySelectorAll("dialog")) {
+    new MutationObserver(() => { if (d.open && tour.open) closeTour(tour.at === tour.steps.length - 1 ? "done" : "away"); }).observe(d, { attributes: true, attributeFilter: ["open"] });
+  }
+  // first visit, on the home view only (someone arriving on a search or a
+  // category link is already browsing), and never for search-engine robots
+  function maybeTour() {
+    if (store.get("tour") || query || cat !== "all" || brand) return;
+    if (navigator.webdriver || /bot|crawl|spider|slurp|lighthouse|headless|preview/i.test(navigator.userAgent)) return;
+    if (document.querySelector("dialog[open]")) return;
+    openTour(true);
+  }
 
 
   // ---- texts (again whenever the language changes)
@@ -903,8 +1057,11 @@ async function shop(token) {
     $("#set-look").textContent = t("appearance");
     for (const b of $("#theme-seg").children) b.textContent = t(b.dataset.theme);
     $("#btn-share").setAttribute("aria-label", t("share"));
-    $("#btn-search").setAttribute("aria-label", t("search"));
     $("#btn-settings").setAttribute("aria-label", t("settings"));
+    $("#q").setAttribute("aria-label", t("search"));
+    $("#help-label").textContent = t("help");
+    $("#btn-help").setAttribute("aria-label", t("help"));
+    paintTour();
     $("#foot-text").textContent = t("footer", { agent: agentName() });
     // like flayfind's: the site sells nothing itself and its links carry a referral code
     $("#foot-disclosure").textContent = agent.code ? t("disclosure", { shop: info.title, agent: agentName() }) : "";
@@ -912,19 +1069,13 @@ async function shop(token) {
     const offer = $("#offer");
     const sticky = $("#sticky-offer");
     const trust = $("#trust");
+    paintPm();
     if (offerOn()) {
-      offer.href = sticky.href = $("#topbar").href = $("#pm-cta").href = signupUrl();
-      t.into($("#offer-text"), "offerBar", { agent: agentName() });
-      t.into($("#topbar-text"), "offerBar", { agent: agentName() });
+      sticky.href = $("#topbar").href = signupUrl();
+      $("#topbar-text").textContent = t("navReg");
       $("#topbar").hidden = false;
-      $("#pm-reg").hidden = false;
-      $("#pm-reg-line").textContent = t("pmRegLine");
-      $("#pm-reg-text").textContent = t("pmRegText", { agent: agentName() });
-      $("#pm-cta-text").textContent = t("pmCta");
-      $("#pm-fine").textContent = t("pmFine");
-      $("#pm-trust").replaceChildren(...["trust1", "trust2", "trust3"].map((k) => el("li", { textContent: t(k) })));
-      $("#pm-trust").hidden = false;
-      $("#sticky-text").textContent = t("offerShort") + " →";
+      $("#sticky-text").textContent = t("stickyT");
+      $("#sticky-sub").textContent = t("stickyS");
       // the big sign-up card replaces the small offer line under the title
       offer.hidden = true;
       const reg = $("#reg");
@@ -932,23 +1083,16 @@ async function shop(token) {
       reg.hidden = false;
       $("#reg-tag").textContent = t("regTag");
       $("#reg-t").textContent = t("regTitle", { agent: agentName() });
+      // who the agent is, in one line, then what the link gives
+      $("#reg-what").textContent = t("regWhat");
       t.into($("#reg-offer"), "regOffer");
       $("#reg-cta").textContent = t("regCta");
+      $("#reg-fine").textContent = t("regFine", { host: agentById(agent.id).hosts[0] });
       // Uidbuy's fox, for a friendly, trustworthy feel (only on Uidbuy shops)
       $("#reg-pic").hidden = $("#wel-pic").hidden = agent.id !== "uidbuy";
       trust.replaceChildren(...["trust1", "trust2", "trust3", "trust4"].map((k) => el("li", { textContent: t(k) })));
       trust.hidden = false;
-      // gate & welcome
-      $("#gate-kicker").textContent = t("gateKicker");
-      t.into($("#gate-title"), "gateTitle");
-      for (const k of ["S1t", "S1d", "S2t", "S2d", "S3t", "S3d"]) $("#gate-" + k.toLowerCase()).textContent = t("gate" + k, { agent: agentName() });
-      $("#gate-cta").href = $("#ready-again").href = signupUrl();
-      $("#gate-cta").textContent = t("gateCta");
-      t.into($("#gate-skip"), "gateSkip");
-      $("#ready-title").textContent = t("readyTitle");
-      $("#ready-text").textContent = t("readyText", { agent: agentName() });
-      $("#ready-cta").textContent = t("readyCta");
-      $("#ready-again").textContent = t("readyAgain", { agent: agentName() });
+      // welcome
       $("#wel-kicker").textContent = t("welKicker");
       $("#wel-amount").textContent = t("welAmount");
       t.into($("#wel-line"), "welLine");
@@ -963,8 +1107,6 @@ async function shop(token) {
       sticky.hidden = true;
       trust.hidden = true;
       $("#topbar").hidden = true;
-      $("#pm-reg").hidden = true;
-      $("#pm-trust").hidden = true;
       if (agent.code) { offer.removeAttribute("href"); t.into($("#offer-text"), "codeBar", { agent: agentName(), code: agent.code }); }
     }
   }
@@ -981,13 +1123,18 @@ async function shop(token) {
     img.src = info.logo || "/icon.svg";
     img.onerror = () => { img.onerror = null; img.src = "/icon.svg"; };
   }
-  const nav = $(".nav");
   new IntersectionObserver((e) => nav.classList.toggle("scrolled", !e[0].isIntersecting)).observe($("#title"));
-  // the floating offer shows once the one in the header is out of sight
-  new IntersectionObserver((e) => {
-    $("#sticky-offer").classList.toggle("off", e[0].isIntersecting);
-    $("#sticky-offer").hidden = !offerOn() || session.get("stickyOff") === "1";
-  }).observe($("#offer"));
+  // the floating sign-up button shows only while the sign-up card is out of
+  // sight (never both at once), and steps aside while someone is typing
+  let regInView = true;
+  const paintSticky = () => {
+    const so = $("#sticky-offer");
+    so.hidden = !offerOn() || session.get("stickyOff") === "1";
+    so.classList.toggle("off", (regInView && !$("#shop").classList.contains("searching")) || document.activeElement === $("#q"));
+  };
+  new IntersectionObserver((e) => { regInView = e[0].isIntersecting; paintSticky(); }).observe($("#reg"));
+  $("#q").addEventListener("focus", paintSticky);
+  $("#q").addEventListener("blur", paintSticky);
 
   if (agents.length > 1) {
     const sel = $("#agent-select");
@@ -998,12 +1145,11 @@ async function shop(token) {
       agent = agents.find((a) => a.id === sel.value);
       store.set("agent:" + shopKey, agent.id);
       paintTexts();
+      paintSticky();
       render(true);
     };
   }
 
-  $("#btn-theme").onclick = () => applyTheme(isDark() ? "light" : "dark");
-  $("#btn-search").onclick = () => { $("#bar").scrollIntoView({ behavior: "smooth" }); setTimeout(() => $("#q").focus({ preventScroll: true }), 350); };
   $("#btn-share").onclick = async () => {
     const url = location.href;
     try {
@@ -1040,16 +1186,32 @@ async function shop(token) {
   curSel.onchange = () => { currency = curSel.value; store.set("currency", currency); paintTexts(); paintPopular(); render(true); };
   $("#theme-seg").onclick = (e) => { const b = e.target.closest("button"); if (b) { applyTheme(b.dataset.theme); paintSeg(); } };
 
+  // While something is typed, the header (title, sign-up card) and the home
+  // rows step aside, so the results sit right under the search box instead of
+  // two screens further down.
+  onQuery = () => {
+    const was = $("#shop").classList.contains("searching");
+    $("#shop").classList.toggle("searching", !!query);
+    syncUrl(); paintChips(); render(true); paintSticky();
+    if (query) scrollBelowTop($("#list-title"), false, 10);
+    else if (was) window.scrollTo({ top: 0, behavior: "instant" });
+  };
   $("#q").value = query;
+  $("#shop").classList.toggle("searching", !!query);
   let typing;
   $("#q").addEventListener("input", (e) => {
     clearTimeout(typing);
-    typing = setTimeout(() => { query = e.target.value.trim(); syncUrl(); paintChips(); render(true); }, 160);
+    typing = setTimeout(() => { query = e.target.value.trim(); onQuery(); }, 160);
   });
+  // Enter (or "Search" on a phone keyboard) puts the keyboard away to show the results
+  $("#q").addEventListener("keydown", (e) => { if (e.key === "Enter") e.target.blur(); });
   $("#sort").onchange = (e) => { sort = e.target.value; syncUrl(); render(true); };
   $("#brand").onchange = (e) => { brand = e.target.value; syncUrl(); render(true); };
 
   paintTexts();
+  paintSticky();
+  // the guide, once the first screen has settled
+  setTimeout(maybeTour, 900);
   // prices change once the exchange rates arrive; redraw only if nothing has been scrolled yet
   ratesReady.then(() => { if (items.length && shownKeys.length <= STEP) render(true); });
   await Promise.all(Array.from({ length: Math.min(4, tasks.length) }, worker));

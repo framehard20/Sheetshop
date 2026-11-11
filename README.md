@@ -54,15 +54,27 @@ On your own computer the settings go to `data/site.json` instead.
   with daily exchange rates and marked "≈" when converted.
 - Light, dark or automatic appearance.
 - Saved items (♥), photo galleries, and a share button.
-- A language and currency window first, every time the page opens (English
-  and US dollars pre-selected, or the visitor's last choice; Accept and done).
-- Tapping a product opens its window, like flayfind's: photos, price, a
-  "Buy on Uidbuy" button and the $800 + 40% sign-up box.
-- With Uidbuy and a code: the "$800 + 40% off shipping" offer in the header and
-  in a floating bar, a welcome pop-up (5 seconds after Accept in the language
-  window, on every visit, waiting if another pop-up is open), and a
-  sign-up step with the coupon on the first "Buy" pressed in each page load
-  (a reload shows it again), which then takes them to the product.
+- The search box is always on screen (it stays at the top while scrolling).
+  While something is typed the results come right under it, and an empty
+  result always offers a way out (all products, or the same words in every
+  category).
+- Tapping a product opens its window, like flayfind's: photos, price and the
+  buttons (they stay at the bottom of the screen on phones; the phone's back
+  button closes the window). There is no second pop-up before buying: a visitor
+  who never opened the sign-up link sees one line on why an account is needed,
+  the green sign-up button first and the blue "Buy on Uidbuy" under it at the
+  same size; after that, "Buy on Uidbuy" comes first and sign-up is one small
+  line. Buy always has the same words and colour.
+- With Uidbuy and a code: a sign-up card under the title (who the agent is,
+  the "$800 in coupons + 40% off shipping" offer, one button), one sign-up
+  button that follows the visitor (floating at the bottom on phones, in the top
+  bar on wide screens), a welcome pop-up (5 seconds after arriving, once per
+  visit, not on a first visit and not after the sign-up link was opened).
+- "How it works": three short steps (search, sign up, buy) that point at the
+  real search box, the real sign-up button and a real product: the page goes
+  dark and only that part stays lit. It opens by itself on a first visit, can
+  be skipped at any moment (Skip or Esc), never locks the page, and opens again
+  from the button at the top.
 - While a pop-up is open the page behind it doesn't move.
 
 ## Only the owner can make shops
@@ -105,17 +117,25 @@ own event, and every event carries the shop's name and agent:
 
 | Event | Where |
 | --- | --- |
-| `signup_top_bar` | the black bar at the very top of the page |
-| `signup_under_title` | the "$800 + 40% off shipping" pill under the title |
-| `signup_floating_bar` | the floating bar at the bottom |
-| `signup_product_window` | the red button in a product's window |
+| `signup_top_bar` | the sign-up button in the top bar (wide screens) |
+| `signup_register_card` | the sign-up card under the title, and the same button inside "How it works" |
+| `signup_under_title` | the code line under the title (agents without the offer) |
+| `signup_floating_bar` | the floating button at the bottom (phones) |
+| `signup_product_window` | the sign-up button (and the small sign-up line) in a product's window |
 | `signup_welcome_popup` | the $800 welcome pop-up |
-| `signup_before_buy` | the sign-up step shown before the first product |
-| `signup_before_buy_again` | "didn't open? open it again" in that step |
+
+`signup_before_buy` and `signup_before_buy_again` belonged to the pop-up shown
+before the first Buy; that step now lives inside the product window, so they
+are no longer sent.
 
 It is off until the Vercel setting `SHEETSHOP_UMAMI_ID` holds the Website ID
 of a Sheetshop website in Umami (https://radar-datos.vercel.app → Settings → Websites), then a
-new deploy. It never runs on localhost.
+new deploy. It never runs on localhost (there, the names a click would have
+counted are kept in `window.__tracked`, for checking).
+
+"How it works" has its own three events, which are not sign-ups: `tour_open`
+(`auto: true` when it opened by itself), `tour_done` and `tour_skip` (with the
+step it was left at).
 
 ## How it reads the sheets
 
